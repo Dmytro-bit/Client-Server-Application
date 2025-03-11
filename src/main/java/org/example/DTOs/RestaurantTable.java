@@ -1,10 +1,10 @@
 package org.example.DTOs;
 
-public class Table {
+public class RestaurantTable {
     private int id;
     private int capacity;
 
-    public Table(int id, int capacity) {
+    public RestaurantTable(int id, int capacity) {
         this.id = id;
         this.capacity = capacity;
     }
