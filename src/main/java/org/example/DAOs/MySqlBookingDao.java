@@ -104,8 +104,36 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface{
     }
 
     @Override
-    public Object insertEntity(Object o) {
-        return null;
+    public Booking insertEntity(Object o) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        Booking booking = (Booking) o;
+
+        try {
+            connection = getConnection();
+            String query = "Insert into booking values(?,?,?,?,?,?,?)";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, ((Booking) o).getId());
+            preparedStatement.setInt(2, ((Booking) o).getCustomer_id());
+            preparedStatement.setInt(3, ((Booking) o).getTable_id());
+            preparedStatement.setDate(4, new java.sql.Date(((Booking) o).getBookingDate().getTime()));
+            preparedStatement.setTime(5, ((Booking) o).getStartTime());
+            preparedStatement.setTime(6, ((Booking) o).getEndTime());
+            preparedStatement.setString(7, String.valueOf(((Booking) o).getStatus()));
+
+            preparedStatement.executeUpdate();
+
+        }catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if(preparedStatement != null) preparedStatement.close();
+                if(connection != null) connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException();
+            }
+        }
+        return booking;
     }
 
     @Override
