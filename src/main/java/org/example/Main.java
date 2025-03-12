@@ -113,6 +113,7 @@ public class Main {
         System.out.println("Enter Table ID:");
         input = updateScanner.nextInt();
         booking.setTable_id((int) input);
+        updateScanner.nextLine();
 
         System.out.println("Enter Date YYYY-MM-DD:");
         input = updateScanner.nextLine();
