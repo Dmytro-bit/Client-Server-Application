@@ -148,7 +148,7 @@ public class Main {
     public static void findBookingByFilter() throws DaoException {
         MySqlBookingDao dao = new MySqlBookingDao();
 
-        Comparator<Booking> bookingComparator = (b1, b2) -> b1.getBookingDate().compareTo(b2.getBookingDate());
+        Comparator<Booking> bookingComparator = (b1, b2) -> b1.getStartTime().compareTo(b2.getStartTime());
 
         List<Booking> filtered_bookings = dao.findEntitiesByFilter(bookingComparator);
 
