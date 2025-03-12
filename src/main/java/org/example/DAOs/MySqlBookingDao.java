@@ -36,7 +36,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
                     status = BookingStatus.valueOf(statusString);
                 } catch (IllegalArgumentException | NullPointerException e) {
                     System.err.println("Invalid booking status found: " + statusString);
-                    status = BookingStatus.PENDING; // Fallback to a default status
+                    status = BookingStatus.PENDING;
                 }
 
                 allBookings.add(new Booking(id, customer_id, table_id, booking_date, start_time, end_time, status));
@@ -82,7 +82,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
                     status = BookingStatus.valueOf(statusString);
                 } catch (Exception e) {
                     System.err.println("Invalid booking status found: " + statusString);
-                    status = BookingStatus.PENDING; // Fallback to a default status
+                    status = BookingStatus.PENDING;
                 }
                 booking = new Booking(ID, customer_id, table_id, booking_date, start_time, end_time, status);
             }
