@@ -25,17 +25,10 @@ public class Booking {
         this.status = status;
     }
 
-    public Booking(int customer_id, int table_id, Date bookingDate, Time startTime, Time endTime, BookingStatus status) {
-        this.id = 0;
-        this.customer_id = customer_id;
-        this.table_id = table_id;
-        this.bookingDate = bookingDate;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.status = status;
-    }
 
-    public Booking () {}
+    public Booking(Time startTime) {
+        this.startTime = startTime;
+    }
 
     public int getId() {
         return id;
@@ -88,6 +81,11 @@ public class Booking {
     public BookingStatus getStatus() {
         return status;
     }
+
+    public String getStringStatus() {
+        return status.toString();
+    }
+
 
     public void setStatus(BookingStatus status) {
         this.status = status;

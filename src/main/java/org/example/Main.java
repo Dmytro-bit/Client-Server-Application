@@ -6,47 +6,51 @@ import org.example.DTOs.Booking;
 import org.example.Exception.DaoException;
 import org.example.Utils.BookingStatus;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
 import java.sql.Date;
 import java.sql.Time;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main {
 
-    public static List<Booking> displayAllBookings() throws DaoException {
-        BaseSqlInterface baseDI = new MySqlBookingDao();
-        List<Booking> allBookings = new ArrayList<>();
+    public static void displayAllBookings(List<Booking> bookingList) {
+        for (Booking booking : bookingList) {
+            System.out.println(booking.toString());
+        }
+    }
+
+    public static void displayAllBookings() throws DaoException {
+        BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
         try {
-            allBookings = baseDI.getAllEntities();
+            List<Booking> allBookings = baseDI.getAllEntities();
 
             for (Booking booking : allBookings) {
                 System.out.println(booking.toString());
             }
-        }catch (DaoException e) {
+        } catch (DaoException e) {
             e.printStackTrace();
         }
-
-        return allBookings;
     }
 
-    public static Booking displayBookingByID() throws DaoException {
-        BaseSqlInterface baseDI = new MySqlBookingDao();
+    public static void displayBookingByID() throws DaoException {
+        BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
         Booking booking;
         Scanner scanner = new Scanner(System.in);
         int ID = 0;
 
-        try{
+        try {
             System.out.println("Enter ID (Valid Integer)");
             ID = scanner.nextInt();
-            booking = (Booking) baseDI.getEntityById(ID);
+            booking = baseDI.getEntityById(ID);
             System.out.println(booking.toString());
         } catch (DaoException e) {
             throw new DaoException(e.getMessage());
         } catch (InputMismatchException e) {
             throw new InputMismatchException("Integer must be an integer");
         }
-        return booking;
     }
 
     public static void AddBooking() throws DaoException {
@@ -79,7 +83,7 @@ public class Main {
 
             Booking newBooking = new Booking(id, customerId, tableId, bookingDate, startTime, endTime, status);
 
-            BaseSqlInterface baseDI = new MySqlBookingDao();
+            BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
             baseDI.insertEntity(newBooking);
 
             System.out.println("Booking added successfully!");
@@ -89,37 +93,115 @@ public class Main {
             e.printStackTrace();
         }
     }
+
+    public static void UpdateBooking() throws DaoException {
+        Scanner updateScanner = new Scanner(System.in);
+
+        System.out.println("Enter Booking ID:");
+        int id = updateScanner.nextInt();
+
+        MySqlBookingDao dao = new MySqlBookingDao();
+        Booking booking = dao.getEntityById(id);
+        System.out.println(booking.toString());
+
+        Object input;
+
+        System.out.println("Enter Customer ID:");
+        input = updateScanner.nextInt();
+        booking.setCustomer_id((int) input);
+
+        System.out.println("Enter Table ID:");
+        input = updateScanner.nextInt();
+        booking.setTable_id((int) input);
+
+        System.out.println("Enter Date YYYY-MM-DD:");
+        input = updateScanner.nextLine();
+        booking.setBookingDate(Date.valueOf((String) input));
+
+        System.out.println("Enter Start Time (HH:mm:ss):");
+        input = updateScanner.nextLine();
+        booking.setStartTime(Time.valueOf((String) input));
+
+        System.out.println("Enter End Time (HH:mm:ss):");
+        input = updateScanner.nextLine();
+        booking.setEndTime(Time.valueOf((String) input));
+
+        System.out.println("Enter Booking Status (PENDING, CONFIRMED, CANCELED):");
+        input = updateScanner.next().toUpperCase();
+        booking.setStatus(BookingStatus.valueOf((String) input));
+
+
+        dao.updateEntity(id, booking);
+        System.out.println("Booking updated successfully!");
+    }
+
+    public static void deleteBooking() throws DaoException {
+        MySqlBookingDao dao = new MySqlBookingDao();
+        Scanner deleteScanner = new Scanner(System.in);
+        System.out.println("Enter Booking ID:");
+        int id = deleteScanner.nextInt();
+
+        dao.deleteEntity(id);
+        System.out.println("Booking deleted successfully!");
+    }
+
+    public static void findBookingByFilter() throws DaoException {
+        MySqlBookingDao dao = new MySqlBookingDao();
+
+        Comparator<Booking> bookingComparator = (b1, b2) -> b1.getBookingDate().compareTo(b2.getBookingDate());
+
+        List<Booking> filtered_bookings = dao.findEntitiesByFilter(bookingComparator);
+
+        System.out.println("Found " + filtered_bookings.size() + " bookings");
+        displayAllBookings(filtered_bookings);
+
+    }
+
     public static void menu() {
         Scanner scanner = new Scanner(System.in);
-        int option = 0;
+        String option = "";
 
         do {
             System.out.println("----------MENU----------");
             System.out.println("1. View Bookings");
             System.out.println("2. View Booking By ID");
             System.out.println("3. Add Booking");
+            System.out.println("4. Update Booking");
+            System.out.println("5. Delete Booking");
+            System.out.println("6. Filter by comparator");
             System.out.println("0. Exit");
 
-            try{
+            try {
                 System.out.println("Choose an option: ");
-                option = scanner.nextInt();
+                option = scanner.nextLine();
 
                 switch (option) {
-                    case 1:
+                    case "1":
                         displayAllBookings();
                         break;
-                    case 2:
+                    case "2":
                         displayBookingByID();
                         break;
-                    case 3:
+                    case "3":
                         AddBooking();
                         break;
+                    case "4":
+                        UpdateBooking();
+                        break;
+                    case "5":
+                        deleteBooking();
+                        break;
+                    case "6":
+                        findBookingByFilter();
+                        break;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
                 }
             } catch (DaoException e) {
                 throw new RuntimeException(e);
             }
 
-        }while (option != 0);
+        } while (!option.equals("0"));
     }
 
     public static void main(String[] args) {

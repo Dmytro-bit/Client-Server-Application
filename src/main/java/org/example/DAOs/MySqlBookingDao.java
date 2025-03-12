@@ -1,17 +1,15 @@
 package org.example.DAOs;
 
-import org.example.Exception.DaoException;
-
 import org.example.DTOs.Booking;
+import org.example.Exception.DaoException;
 import org.example.Utils.BookingStatus;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
 
-public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface{
+public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Booking> {
     @Override
     public List<Booking> getAllEntities() throws DaoException {
         Connection connection = null;
@@ -25,8 +23,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface{
             preparedStatement = connection.prepareStatement(query);
             resultSet = preparedStatement.executeQuery();
 
-            while(resultSet.next())
-            {
+            while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 int customer_id = resultSet.getInt("customer_id");
                 int table_id = resultSet.getInt("table_id");
@@ -44,13 +41,13 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface{
 
                 allBookings.add(new Booking(id, customer_id, table_id, booking_date, start_time, end_time, status));
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             throw new DaoException(e.getMessage());
         } finally {
             try {
-                if(resultSet != null) resultSet.close();
+                if (resultSet != null) resultSet.close();
                 if (preparedStatement != null) preparedStatement.close();
-                if(connection != null) connection.close();
+                if (connection != null) freeConnection(connection);
             } catch (SQLException e) {
                 throw new RuntimeException();
             }
@@ -65,14 +62,14 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface{
         ResultSet resultSet = null;
         Booking booking = null;
 
-        try{
+        try {
             connection = getConnection();
             String query = "SELECT * FROM booking WHERE id = ?";
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             resultSet = preparedStatement.executeQuery();
 
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 int ID = resultSet.getInt("id");
                 int customer_id = resultSet.getInt("customer_id");
                 int table_id = resultSet.getInt("table_id");
@@ -93,9 +90,9 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface{
             throw new DaoException(e.getMessage());
         } finally {
             try {
-                if(resultSet != null) resultSet.close();
-                if(preparedStatement != null) preparedStatement.close();
-                if(connection != null) connection.close();
+                if (resultSet != null) resultSet.close();
+                if (preparedStatement != null) preparedStatement.close();
+                if (connection != null) freeConnection(connection);
             } catch (SQLException e) {
                 throw new RuntimeException();
             }
@@ -104,50 +101,116 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface{
     }
 
     @Override
-    public Booking insertEntity(Object o) {
+    public void insertEntity(Booking b) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        Booking booking = (Booking) o;
 
         try {
             connection = getConnection();
             String query = "Insert into booking values(?,?,?,?,?,?,?)";
             preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, ((Booking) o).getId());
-            preparedStatement.setInt(2, ((Booking) o).getCustomer_id());
-            preparedStatement.setInt(3, ((Booking) o).getTable_id());
-            preparedStatement.setDate(4, new java.sql.Date(((Booking) o).getBookingDate().getTime()));
-            preparedStatement.setTime(5, ((Booking) o).getStartTime());
-            preparedStatement.setTime(6, ((Booking) o).getEndTime());
-            preparedStatement.setString(7, String.valueOf(((Booking) o).getStatus()));
+            preparedStatement.setInt(1, b.getId());
+            preparedStatement.setInt(2, b.getCustomer_id());
+            preparedStatement.setInt(3, b.getTable_id());
+            preparedStatement.setDate(4, new java.sql.Date(b.getBookingDate().getTime()));
+            preparedStatement.setTime(5, b.getStartTime());
+            preparedStatement.setTime(6, b.getEndTime());
+            preparedStatement.setString(7, b.getStringStatus());
 
             preparedStatement.executeUpdate();
 
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             try {
-                if(preparedStatement != null) preparedStatement.close();
-                if(connection != null) connection.close();
+                if (preparedStatement != null) preparedStatement.close();
+                if (connection != null) freeConnection(connection);
             } catch (SQLException e) {
                 throw new RuntimeException();
             }
         }
-        return booking;
     }
 
     @Override
-    public void updateEntity(int id, Object o) {
+    public void updateEntity(int id, Booking booking) throws DaoException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
 
+        try {
+            connection = getConnection();
+            String query = "UPDATE Booking SET customer_id = ?,table_id = ?,booking_date = ?,start_time = ?,end_time = ?,status = ? WHERE id = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, booking.getCustomer_id());
+            preparedStatement.setInt(2, booking.getTable_id());
+            preparedStatement.setDate(3, new java.sql.Date(booking.getBookingDate().getTime()));
+            preparedStatement.setTime(4, booking.getStartTime());
+            preparedStatement.setTime(5, booking.getEndTime());
+            preparedStatement.setString(6, booking.getStringStatus());
+            preparedStatement.setInt(7, id);
+
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DaoException(e.getMessage());
+        } finally {
+            try {
+                if (preparedStatement != null) preparedStatement.close();
+                if (connection != null) freeConnection(connection);
+
+            } catch (SQLException e) {
+                throw new DaoException("updateEntity() " + e.getMessage());
+            }
+        }
     }
 
     @Override
     public void deleteEntity(int id) throws DaoException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
 
+        try {
+            connection = getConnection();
+            String query = "DELETE FROM booking WHERE id = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, id);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DaoException(e.getMessage());
+        } finally {
+            try {
+                if (preparedStatement != null) preparedStatement.close();
+                if (connection != null) freeConnection(connection);
+
+            } catch (SQLException e) {
+                throw new DaoException("updateEntity() " + e.getMessage());
+            }
+        }
     }
 
     @Override
-    public List findEntitiesByFilter(Comparator comparator) throws DaoException {
-        return List.of();
+    public List<Booking> findEntitiesByFilter(Comparator<Booking> comparator) throws DaoException {
+        List<Booking> all_bookings = getAllEntities();
+        List<Booking> filtered_bookings = new ArrayList<>();
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please select threshold time");
+        String threshold = "";
+        String regex = "^([01]\\d|2[0-3]):[0-5]\\d";
+        Pattern pattern = Pattern.compile(regex);
+
+        while (threshold.isEmpty() || !pattern.matcher(threshold).matches()) {
+            threshold = scanner.nextLine();
+        }
+
+
+        Booking threshold_booking = new Booking(Time.valueOf(threshold+":00"));
+        for (Booking booking : all_bookings) {
+            if (comparator.compare(booking, threshold_booking) > 0) {
+                filtered_bookings.add(booking);
+            }
+        }
+
+        return filtered_bookings;
     }
 }

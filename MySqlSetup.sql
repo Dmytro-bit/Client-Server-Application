@@ -23,9 +23,9 @@ CREATE TABLE `Booking`
     id           INT AUTO_INCREMENT PRIMARY KEY,
     customer_id  INT,
     table_id     INT,
-    booking_date DATE                                      NOT NULL,
-    start_time   TIME                                      NOT NULL,
-    end_time     TIME                                      NOT NULL,
+    booking_date DATE                                       NOT NULL,
+    start_time   TIME                                       NOT NULL,
+    end_time     TIME                                       NOT NULL,
     status       ENUM ('PENDING', 'CONFIRMED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
     CONSTRAINT fk_customer
         FOREIGN KEY (customer_id)

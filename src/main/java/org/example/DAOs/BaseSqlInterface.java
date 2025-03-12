@@ -10,9 +10,9 @@ public interface BaseSqlInterface<T> {
 
     T getEntityById(int id) throws DaoException;
 
-    T insertEntity(T t);
+    void insertEntity(T t);
 
-    void updateEntity(int id, T t);
+    void updateEntity(int id, T t) throws DaoException;
 
     void deleteEntity(int id) throws DaoException;
 
