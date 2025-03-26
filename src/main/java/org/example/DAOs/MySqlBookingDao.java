@@ -101,6 +101,11 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
     }
 
     @Override
+    public List<Booking> getEntitiesByField(String filed, String value) throws DaoException {
+        return null;
+    }
+
+    @Override
     public void insertEntity(Booking b) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;

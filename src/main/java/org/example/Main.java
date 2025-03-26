@@ -2,17 +2,16 @@ package org.example;
 
 import org.example.DAOs.BaseSqlInterface;
 import org.example.DAOs.MySqlBookingDao;
+import org.example.DAOs.MySqlTableDao;
 import org.example.DTOs.Booking;
+import org.example.DTOs.RestaurantTable;
 import org.example.Exception.DaoException;
 import org.example.Utils.BookingStatus;
 
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 
@@ -206,7 +205,14 @@ public class Main {
         } while (!option.equals("0"));
     }
 
-    public static void main(String[] args) {
-        menu();
+    public static void main(String[] args) throws DaoException {
+//        menu();
+        MySqlTableDao baseDI = new MySqlTableDao();
+
+        List<RestaurantTable> list = baseDI.getEntitiesByField("", "22:00:00");
+
+        for(RestaurantTable table : list) {
+            System.out.println(table);
+        }
     }
 }

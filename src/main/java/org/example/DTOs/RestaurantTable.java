@@ -24,4 +24,12 @@ public class RestaurantTable {
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
+
+    @Override
+    public String toString() {
+        return "RestaurantTable{" +
+                "id=" + id +
+                ", capacity=" + capacity +
+                '}';
+    }
 }
