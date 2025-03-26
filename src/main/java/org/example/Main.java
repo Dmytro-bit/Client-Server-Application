@@ -11,7 +11,10 @@ import org.example.Utils.BookingStatus;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Comparator;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main {
 
@@ -204,13 +207,9 @@ public class Main {
     }
 
     public static void main(String[] args) throws DaoException {
-//        menu();
+        menu();
         MySqlTableDao baseDI = new MySqlTableDao();
 
         List<RestaurantTable> list = baseDI.getEntitiesByField("", "22:00:00");
-
-        for(RestaurantTable table : list) {
-            System.out.println(table);
-        }
     }
 }
