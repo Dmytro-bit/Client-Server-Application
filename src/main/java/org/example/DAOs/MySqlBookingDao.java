@@ -19,7 +19,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
 
         try {
             connection = getConnection();
-            String query = "SELECT * FROM booking";
+            String query = "SELECT * FROM Booking";
             preparedStatement = connection.prepareStatement(query);
             resultSet = preparedStatement.executeQuery();
 
@@ -64,7 +64,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
 
         try {
             connection = getConnection();
-            String query = "SELECT * FROM booking WHERE id = ?";
+            String query = "SELECT * FROM Booking WHERE id = ?";
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             resultSet = preparedStatement.executeQuery();
@@ -107,7 +107,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
 
         try {
             connection = getConnection();
-            String query = "Insert into booking values(?,?,?,?,?,?,?)";
+            String query = "Insert into Booking values(?,?,?,?,?,?,?)";
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, b.getId());
             preparedStatement.setInt(2, b.getCustomer_id());
@@ -170,7 +170,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
 
         try {
             connection = getConnection();
-            String query = "DELETE FROM booking WHERE id = ?";
+            String query = "DELETE FROM Booking WHERE id = ?";
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
