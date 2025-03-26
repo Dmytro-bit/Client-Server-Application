@@ -59,8 +59,6 @@ public class Main {
             LocalDate today = LocalDate.now();
             Date bookingDate = Date.valueOf(today);
 
-            System.out.println("Enter Booking ID:");
-            int id = addScanner.nextInt();
 
             System.out.println("Enter Customer ID:");
             int customerId = addScanner.nextInt();
@@ -80,7 +78,7 @@ public class Main {
             String statusString = addScanner.next().toUpperCase();
             BookingStatus status = BookingStatus.valueOf(statusString);
 
-            Booking newBooking = new Booking(id, customerId, tableId, bookingDate, startTime, endTime, status);
+            Booking newBooking = new Booking(customerId, tableId, bookingDate, startTime, endTime, status);
 
             BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
             baseDI.insertEntity(newBooking);
