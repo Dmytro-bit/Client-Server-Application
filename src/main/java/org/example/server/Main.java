@@ -24,12 +24,31 @@ public class Main {
         }
     }
 
+    public static void displayAllTables(List<RestaurantTable> tableList) {
+        for (RestaurantTable table : tableList) {
+            System.out.println(table.toString());
+        }
+    }
+
     public static void displayAllBookings() throws DaoException {
         BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
         try {
             List<Booking> allBookings = baseDI.getAllEntities();
 
             for (Booking booking : allBookings) {
+                System.out.println(booking.toString());
+            }
+        } catch (DaoException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void displayAllTables() throws DaoException {
+        BaseSqlInterface<RestaurantTable> baseDI = new MySqlTableDao();
+        try {
+            List<RestaurantTable> allTables = baseDI.getAllEntities();
+
+            for (RestaurantTable booking : allTables) {
                 System.out.println(booking.toString());
             }
         } catch (DaoException e) {
@@ -171,6 +190,13 @@ public class Main {
             System.out.println("4. Update Booking");
             System.out.println("5. Delete Booking");
             System.out.println("6. Filter by comparator");
+            System.out.println("*----TABLE----*");
+            System.out.println("7. View Tables");
+            System.out.println("8. View Table By ID");
+            System.out.println("9. Add Table");
+            System.out.println("10. Update Table");
+            System.out.println("11. Delete Table");
+            System.out.println("12. See Table with Enough Sits");
             System.out.println("0. Exit");
 
             try {
@@ -195,6 +221,9 @@ public class Main {
                         break;
                     case "6":
                         findBookingByFilter();
+                        break;
+                    case "7":
+                        displayAllTables();
                         break;
                     default:
                         System.out.println("Invalid option. Please try again.");

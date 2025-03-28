@@ -1,14 +1,13 @@
 package org.example.server.DAOs;
 
+import org.example.DTOs.Booking;
 import org.example.DTOs.RestaurantTable;
 import org.example.server.Exception.DaoException;
 
 import java.sql.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<RestaurantTable> {
     @Override
@@ -146,8 +145,29 @@ public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<Restaura
     }
 
     @Override
-    public void updateEntity(int id, RestaurantTable restaurantTable) throws DaoException {
+    public void updateEntity(int id,  RestaurantTable restaurantTable) throws DaoException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
 
+        try {
+            connection = getConnection();
+            String query = "UPDATE RestaurantTables SET capacity = ? WHERE id = ?";
+
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, restaurantTable.getCapacity());
+            preparedStatement.setInt(2, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e.getMessage());
+        } finally {
+            try {
+                if (preparedStatement != null) preparedStatement.close();
+                if (connection != null) freeConnection(connection);
+
+            } catch (SQLException e) {
+                throw new DaoException("deleteEntity() " + e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -178,6 +198,25 @@ public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<Restaura
 
     @Override
     public List<RestaurantTable> findEntitiesByFilter(Comparator<RestaurantTable> comparator) throws DaoException {
-        return null;
+        List<RestaurantTable> all_tables = getAllEntities();
+        List<RestaurantTable> filtered_tables = new ArrayList<>();
+
+        try {
+            Scanner input = new Scanner(System.in);
+            System.out.println("Number of people: ");
+            int threshold_capacity = input.nextInt();
+
+            RestaurantTable threshold_table = new RestaurantTable(threshold_capacity);
+            for (RestaurantTable table : all_tables) {
+                if (comparator.compare(table, threshold_table) > 0) {
+                    filtered_tables.add(table);
+                }
+            }
+
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid Format");
+        }
+
+        return filtered_tables;
     }
 }

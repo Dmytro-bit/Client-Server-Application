@@ -199,7 +199,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
         List<Booking> filtered_bookings = new ArrayList<>();
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Please select threshold time");
+        System.out.println("Please select threshold time: ");
         String threshold = "";
         String regex = "^([01]\\d|2[0-3]):[0-5]\\d";
         Pattern pattern = Pattern.compile(regex);
@@ -207,7 +207,6 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
         while (threshold.isEmpty() || !pattern.matcher(threshold).matches()) {
             threshold = scanner.nextLine();
         }
-
 
         Booking threshold_booking = new Booking(Time.valueOf(threshold + ":00"));
         for (Booking booking : all_bookings) {
