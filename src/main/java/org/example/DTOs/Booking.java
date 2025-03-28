@@ -93,14 +93,9 @@ public class Booking {
 
     @Override
     public String toString() {
-        return "Booking{" +
-                "id=" + id +
-                ", customer_id=" + customer_id +
-                ", table_id=" + table_id +
-                ", bookingDate=" + bookingDate +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", status=" + status +
-                '}';
+        return String.format(
+                "Booking - ID: %2d | Customer ID: %2d | Table ID: %2d | Booking Date: %s | Start Time: %s | End Time: %s | Status: %s ",
+                id, customer_id, table_id, bookingDate, startTime, endTime, status
+        );
     }
 }

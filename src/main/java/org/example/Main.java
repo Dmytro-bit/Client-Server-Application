@@ -39,17 +39,23 @@ public class Main {
         BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
         Booking booking;
         Scanner scanner = new Scanner(System.in);
-        int ID = 0;
 
         try {
-            System.out.println("Enter ID (Valid Integer)");
-            ID = scanner.nextInt();
+            System.out.println("Enter ID (Valid Integer):");
+            while (!scanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a valid integer:");
+                scanner.next();
+            }
+            int ID = scanner.nextInt();
+
             booking = baseDI.getEntityById(ID);
-            System.out.println(booking.toString());
+            if (booking != null) {
+                System.out.println(booking.toString());
+            } else {
+                System.out.println("No booking found with ID: " + ID);
+            }
         } catch (DaoException e) {
             throw new DaoException(e.getMessage());
-        } catch (InputMismatchException e) {
-            throw new InputMismatchException("Integer must be an integer");
         }
     }
 
@@ -60,30 +66,81 @@ public class Main {
             LocalDate today = LocalDate.now();
             Date bookingDate = Date.valueOf(today);
 
-            System.out.println("Enter Booking ID:");
-            int id = addScanner.nextInt();
+            BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
+            int id;
+
+            while (true) {
+                System.out.println("Enter Booking ID:");
+                while (!addScanner.hasNextInt()) {
+                    System.out.println("Invalid input. Please enter a valid integer:");
+                    addScanner.next();
+                }
+                id = addScanner.nextInt();
+
+                Booking existingBooking = baseDI.getEntityById(id);
+                if (existingBooking != null) {
+                    System.out.println("A booking with ID " + id + " already exists. Please use a different ID.");
+                } else {
+                    break;
+                }
+            }
 
             System.out.println("Enter Customer ID:");
+            while (!addScanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a valid integer:");
+                addScanner.next();
+            }
             int customerId = addScanner.nextInt();
 
             System.out.println("Enter Table ID:");
+            while (!addScanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a valid integer:");
+                addScanner.next();
+            }
             int tableId = addScanner.nextInt();
+            addScanner.nextLine();
 
-            System.out.println("Enter Start Time (HH:mm:ss):");
-            String startTimeString = addScanner.next();
-            Time startTime = Time.valueOf(startTimeString);
+            System.out.println("Enter Start Time (HH:mm):");
+            String startTimeString = "";
+            while (true) {
+                startTimeString = addScanner.nextLine().trim();
+                if (startTimeString.matches("^(?:[01]\\d|2[0-3]):(?:00|30)$")) {
+                    break;
+                } else {
+                    System.out.println("Invalid time format. Please enter a valid time in HH:mm format (e.g., 10:00 or 14:30):");
+                }
+            }
+            Time startTime = Time.valueOf(startTimeString + ":00");
 
-            System.out.println("Enter End Time (HH:mm:ss):");
-            String endTimeString = addScanner.next();
-            Time endTime = Time.valueOf(endTimeString);
+            System.out.println("Enter End Time (HH:mm):");
+            String endTimeString = "";
+            while (true) {
+                endTimeString = addScanner.nextLine().trim();
+                if (endTimeString.matches("^(?:[01]\\d|2[0-3]):(?:00|30)$")) {
+                    Time endTime = Time.valueOf(endTimeString + ":00");
+                    if (endTime.after(startTime)) {
+                        break;
+                    } else {
+                        System.out.println("End time must be later than start time. Please enter a valid end time:");
+                    }
+                } else {
+                    System.out.println("Invalid time format. Please enter a valid time in HH:mm format (e.g., 10:00 or 14:30):");
+                }
+            }
+            Time endTime = Time.valueOf(endTimeString + ":00");
 
             System.out.println("Enter Booking Status (PENDING, CONFIRMED, CANCELED):");
             String statusString = addScanner.next().toUpperCase();
-            BookingStatus status = BookingStatus.valueOf(statusString);
+            BookingStatus status;
+            try {
+                status = BookingStatus.valueOf(statusString);
+            } catch (IllegalArgumentException e) {
+                System.err.println("Invalid status. Please enter one of the following: PENDING, CONFIRMED, CANCELED.");
+                return;
+            }
 
             Booking newBooking = new Booking(id, customerId, tableId, bookingDate, startTime, endTime, status);
 
-            BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
             baseDI.insertEntity(newBooking);
 
             System.out.println("Booking added successfully!");
@@ -97,53 +154,137 @@ public class Main {
     public static void UpdateBooking() throws DaoException {
         Scanner updateScanner = new Scanner(System.in);
 
-        System.out.println("Enter Booking ID:");
-        int id = updateScanner.nextInt();
+        try {
+            MySqlBookingDao dao = new MySqlBookingDao();
+            Booking booking = null;
+            int id;
 
-        MySqlBookingDao dao = new MySqlBookingDao();
-        Booking booking = dao.getEntityById(id);
-        System.out.println(booking.toString());
+            while (true) {
+                System.out.println("Enter Booking ID:");
+                while (!updateScanner.hasNextInt()) {
+                    System.out.println("Invalid input. Please enter a valid integer:");
+                    updateScanner.next();
+                }
+                id = updateScanner.nextInt();
 
-        Object input;
+                booking = dao.getEntityById(id);
+                if (booking == null) {
+                    System.out.println("No booking found with ID: " + id);
+                } else {
+                    break;
+                }
+            }
 
-        System.out.println("Enter Customer ID:");
-        input = updateScanner.nextInt();
-        booking.setCustomer_id((int) input);
+            System.out.println("Current Booking Details: " + booking.toString());
 
-        System.out.println("Enter Table ID:");
-        input = updateScanner.nextInt();
-        booking.setTable_id((int) input);
-        updateScanner.nextLine();
+            System.out.println("Enter Customer ID:");
+            while (!updateScanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a valid integer:");
+                updateScanner.next();
+            }
+            int customerId = updateScanner.nextInt();
+            booking.setCustomer_id(customerId);
 
-        System.out.println("Enter Date YYYY-MM-DD:");
-        input = updateScanner.nextLine();
-        booking.setBookingDate(Date.valueOf((String) input));
+            System.out.println("Enter Table ID:");
+            while (!updateScanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a valid integer:");
+                updateScanner.next();
+            }
+            int tableId = updateScanner.nextInt();
+            booking.setTable_id(tableId);
+            updateScanner.nextLine();
 
-        System.out.println("Enter Start Time (HH:mm:ss):");
-        input = updateScanner.nextLine();
-        booking.setStartTime(Time.valueOf((String) input));
+            System.out.println("Enter Date (YYYY-MM-DD):");
+            String dateInput;
+            while (true) {
+                dateInput = updateScanner.nextLine().trim();
+                try {
+                    booking.setBookingDate(Date.valueOf(dateInput));
+                    break;
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Invalid date format. Please enter a valid date in YYYY-MM-DD format:");
+                }
+            }
 
-        System.out.println("Enter End Time (HH:mm:ss):");
-        input = updateScanner.nextLine();
-        booking.setEndTime(Time.valueOf((String) input));
+            System.out.println("Enter Start Time (HH:mm):");
+            String startTimeString;
+            while (true) {
+                startTimeString = updateScanner.nextLine().trim();
+                if (startTimeString.matches("^(?:[01]\\d|2[0-3]):(?:00|30)$")) {
+                    booking.setStartTime(Time.valueOf(startTimeString + ":00"));
+                    break;
+                } else {
+                    System.out.println("Invalid time format. Please enter a valid time in HH:mm format (e.g., 10:00 or 14:30):");
+                }
+            }
 
-        System.out.println("Enter Booking Status (PENDING, CONFIRMED, CANCELED):");
-        input = updateScanner.next().toUpperCase();
-        booking.setStatus(BookingStatus.valueOf((String) input));
+            System.out.println("Enter End Time (HH:mm):");
+            String endTimeString;
+            while (true) {
+                endTimeString = updateScanner.nextLine().trim();
+                if (endTimeString.matches("^(?:[01]\\d|2[0-3]):(?:00|30)$")) {
+                    Time endTime = Time.valueOf(endTimeString + ":00");
+                    if (endTime.after(booking.getStartTime())) {
+                        booking.setEndTime(endTime);
+                        break;
+                    } else {
+                        System.out.println("End time must be later than start time. Please enter a valid end time:");
+                    }
+                } else {
+                    System.out.println("Invalid time format. Please enter a valid time in HH:mm format (e.g., 10:00 or 14:30):");
+                }
+            }
 
+            System.out.println("Enter Booking Status (PENDING, CONFIRMED, CANCELED):");
+            String statusString;
+            while (true) {
+                statusString = updateScanner.next().toUpperCase();
+                try {
+                    booking.setStatus(BookingStatus.valueOf(statusString));
+                    break;
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Invalid status. Please enter one of the following: PENDING, CONFIRMED, CANCELED:");
+                }
+            }
 
-        dao.updateEntity(id, booking);
-        System.out.println("Booking updated successfully!");
+            dao.updateEntity(id, booking);
+            System.out.println("Booking updated successfully!");
+        } catch (Exception e) {
+            System.err.println("Error updating booking. Please check your input.");
+            e.printStackTrace();
+        }
     }
 
     public static void deleteBooking() throws DaoException {
         MySqlBookingDao dao = new MySqlBookingDao();
         Scanner deleteScanner = new Scanner(System.in);
-        System.out.println("Enter Booking ID:");
-        int id = deleteScanner.nextInt();
 
-        dao.deleteEntity(id);
-        System.out.println("Booking deleted successfully!");
+        try {
+            Booking booking = null;
+            int id;
+
+            while (true) {
+                System.out.println("Enter Booking ID:");
+                while (!deleteScanner.hasNextInt()) {
+                    System.out.println("Invalid input. Please enter a valid integer:");
+                    deleteScanner.next();
+                }
+                id = deleteScanner.nextInt();
+
+                booking = dao.getEntityById(id);
+                if (booking == null) {
+                    System.out.println("No booking found with ID: " + id);
+                } else {
+                    break;
+                }
+            }
+
+            dao.deleteEntity(id);
+            System.out.println("Booking deleted successfully!");
+        } catch (Exception e) {
+            System.err.println("Error deleting booking. Please check your input.");
+            e.printStackTrace();
+        }
     }
 
     public static void findBookingByFilter() throws DaoException {
@@ -163,14 +304,14 @@ public class Main {
         String option = "";
 
         do {
-            System.out.println("----------MENU----------");
+            System.out.println("\n----------MENU----------");
             System.out.println("1. View Bookings");
             System.out.println("2. View Booking By ID");
             System.out.println("3. Add Booking");
             System.out.println("4. Update Booking");
             System.out.println("5. Delete Booking");
             System.out.println("6. Filter by comparator");
-            System.out.println("0. Exit");
+            System.out.println("0. Exit\n");
 
             try {
                 System.out.println("Choose an option: ");
@@ -194,6 +335,9 @@ public class Main {
                         break;
                     case "6":
                         findBookingByFilter();
+                        break;
+                    case "0":
+                        System.out.println("Exiting the program...");
                         break;
                     default:
                         System.out.println("Invalid option. Please try again.");
