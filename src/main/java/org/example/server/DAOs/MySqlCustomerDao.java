@@ -1,7 +1,7 @@
-package org.example.DAOs;
+package org.example.server.DAOs;
 
 import org.example.DTOs.Customer;
-import org.example.Exception.DaoException;
+import org.example.server.Exception.DaoException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
