@@ -1,6 +1,6 @@
-package org.example.DAOs;
+package org.example.server.DAOs;
 
-import org.example.Exception.DaoException;
+import org.example.server.Exception.DaoException;
 
 import java.util.Comparator;
 import java.util.List;

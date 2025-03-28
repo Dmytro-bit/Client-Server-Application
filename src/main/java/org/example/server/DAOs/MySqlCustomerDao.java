@@ -1,66 +1,73 @@
-package org.example.DAOs;
+package org.example.server.DAOs;
 
-import org.example.DTOs.Booking;
-import org.example.DTOs.RestaurantTable;
-import org.example.Exception.DaoException;
+import org.example.DTOs.Customer;
+import org.example.server.Exception.DaoException;
 
-import java.sql.*;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Scanner;
 
-public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<RestaurantTable> {
+public class MySqlCustomerDao extends MySqlDao implements BaseSqlInterface<Customer> {
+
     @Override
-    public List<RestaurantTable> getAllEntities() throws DaoException {
+    public List<Customer> getAllEntities() throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        List<RestaurantTable> tables = new ArrayList<>();
+        List<Customer> customers = new ArrayList<>();
 
         try {
             connection = getConnection();
-            String query = "select * from RestaurantTable";
+            String query = "SELECT * FROM Customer";
             preparedStatement = connection.prepareStatement(query);
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
-                int capacity = resultSet.getInt("capacity");
-
-                tables.add(new RestaurantTable(id, capacity));
+                String name = resultSet.getString("name");
+                String phone = resultSet.getString("phone");
+                String email = resultSet.getString("email");
+                customers.add(new Customer(id, name, phone, email));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException(e.getMessage());
         } finally {
             try {
                 if (resultSet != null) resultSet.close();
                 if (preparedStatement != null) preparedStatement.close();
                 if (connection != null) freeConnection(connection);
             } catch (SQLException e) {
-                throw new RuntimeException();
+                throw new DaoException("getAllEntities() " + e.getMessage());
             }
         }
-        return tables;
+        return customers;
     }
 
     @Override
-    public RestaurantTable getEntityById(int id) throws DaoException {
+    public Customer getEntityById(int id) throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        RestaurantTable table = null;
+        Customer customer = null;
 
         try {
             connection = getConnection();
-            String query = "SELECT * FROM RestaurantTable WHERE id = ?";
+            String query = "SELECT * FROM Customer WHERE id = ?";
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
-                int ID = resultSet.getInt("id");
-                int capacity = resultSet.getInt("capacity");
-                table = new RestaurantTable(ID, capacity);
+            if (resultSet.next()) {
+                int customerId = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                String phone = resultSet.getString("phone");
+                String email = resultSet.getString("email");
+                customer = new Customer(customerId, name, phone, email);
             }
         } catch (SQLException e) {
             throw new DaoException(e.getMessage());
@@ -70,67 +77,62 @@ public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<Restaura
                 if (preparedStatement != null) preparedStatement.close();
                 if (connection != null) freeConnection(connection);
             } catch (SQLException e) {
-                throw new RuntimeException();
+                throw new DaoException("getEntityById() " + e.getMessage());
             }
         }
-        return table;
+        return customer;
     }
 
     @Override
-    public List<RestaurantTable> getEntitiesByField(String field, String value) throws DaoException {
+    public List<Customer> getEntitiesByField(String field, String value) throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        List<RestaurantTable> tables = new ArrayList<>();
+        List<Customer> customers = new ArrayList<>();
 
         try {
             connection = getConnection();
-            String query = "SELECT DISTINCT t.id, t.capacity " +
-                    "FROM RestaurantTable t " +
-                    "WHERE t.id NOT IN (" +
-                    "   SELECT b.table_id FROM Booking b " +
-                    "   WHERE ? BETWEEN b.start_time AND b.end_time AND b.status != 'cancelled'" +
-                    ");";
-            preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setTime(1, Time.valueOf(LocalTime.parse(value, DateTimeFormatter.ofPattern("HH:mm:ss"))));
 
+            String query = "SELECT * FROM Customer WHERE ? = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, field);
+            preparedStatement.setString(2, value);
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
-                int capacity = resultSet.getInt("capacity");
-
-                tables.add(new RestaurantTable(id, capacity));
+                String name = resultSet.getString("name");
+                String phone = resultSet.getString("phone");
+                String email = resultSet.getString("email");
+                customers.add(new Customer(id, name, phone, email));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException(e.getMessage());
         } finally {
             try {
                 if (resultSet != null) resultSet.close();
                 if (preparedStatement != null) preparedStatement.close();
                 if (connection != null) freeConnection(connection);
             } catch (SQLException e) {
-                throw new RuntimeException();
+                throw new DaoException("getEntitiesByField() " + e.getMessage());
             }
         }
-
-        return tables;
+        return customers;
     }
 
     @Override
-    public void insertEntity(RestaurantTable table) {
+    public void insertEntity(Customer customer) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
         try {
             connection = getConnection();
-            String query = "Insert into RestaurantTable values(?,?)";
+            String query = "INSERT INTO Customer (name, phone, email) VALUES (?, ?, ?)";
             preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, table.getId());
-            preparedStatement.setInt(1, table.getCapacity());
-
+            preparedStatement.setString(1, customer.getName());
+            preparedStatement.setString(2, customer.getPhone());
+            preparedStatement.setString(3, customer.getEmail());
             preparedStatement.executeUpdate();
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -138,24 +140,24 @@ public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<Restaura
                 if (preparedStatement != null) preparedStatement.close();
                 if (connection != null) freeConnection(connection);
             } catch (SQLException e) {
-                throw new RuntimeException();
+                throw new RuntimeException(e);
             }
         }
-
     }
 
     @Override
-    public void updateEntity(int id,  RestaurantTable restaurantTable) throws DaoException {
+    public void updateEntity(int id, Customer customer) throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
         try {
             connection = getConnection();
-            String query = "UPDATE RestaurantTables SET capacity = ? WHERE id = ?";
-
+            String query = "UPDATE Customer SET name = ?, phone = ?, email = ? WHERE id = ?";
             preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, restaurantTable.getCapacity());
-            preparedStatement.setInt(2, id);
+            preparedStatement.setString(1, customer.getName());
+            preparedStatement.setString(2, customer.getPhone());
+            preparedStatement.setString(3, customer.getEmail());
+            preparedStatement.setInt(4, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e.getMessage());
@@ -163,9 +165,8 @@ public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<Restaura
             try {
                 if (preparedStatement != null) preparedStatement.close();
                 if (connection != null) freeConnection(connection);
-
             } catch (SQLException e) {
-                throw new DaoException("deleteEntity() " + e.getMessage());
+                throw new DaoException("updateEntity() " + e.getMessage());
             }
         }
     }
@@ -177,46 +178,46 @@ public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<Restaura
 
         try {
             connection = getConnection();
-            String query = "DELETE FROM RestaurantTable WHERE id = ?";
+            String query = "DELETE FROM Customer WHERE id = ?";
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
-
         } catch (SQLException e) {
             throw new DaoException(e.getMessage());
         } finally {
             try {
                 if (preparedStatement != null) preparedStatement.close();
                 if (connection != null) freeConnection(connection);
-
             } catch (SQLException e) {
                 throw new DaoException("deleteEntity() " + e.getMessage());
             }
         }
-
     }
 
     @Override
-    public List<RestaurantTable> findEntitiesByFilter(Comparator<RestaurantTable> comparator) throws DaoException {
-        List<RestaurantTable> all_tables = getAllEntities();
-        List<RestaurantTable> filtered_tables = new ArrayList<>();
+    public List<Customer> findEntitiesByFilter(Comparator<Customer> comparator) throws DaoException {
+        List<Customer> allCustomers = getAllEntities();
+        List<Customer> filteredCustomers = new ArrayList<>();
 
-        try {
-            Scanner input = new Scanner(System.in);
-            System.out.println("Number of people: ");
-            int threshold_capacity = input.nextInt();
-
-            RestaurantTable threshold_table = new RestaurantTable(threshold_capacity);
-            for (RestaurantTable table : all_tables) {
-                if (comparator.compare(table, threshold_table) > 0) {
-                    filtered_tables.add(table);
-                }
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please enter threshold id:");
+        int threshold = 0;
+        boolean valid = false;
+        while (!valid) {
+            try {
+                threshold = Integer.parseInt(scanner.nextLine());
+                valid = true;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid integer:");
             }
-
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid Format");
         }
 
-        return filtered_tables;
+        Customer thresholdCustomer = new Customer(threshold, "", "", "");
+        for (Customer customer : allCustomers) {
+            if (comparator.compare(customer, thresholdCustomer) > 0) {
+                filteredCustomers.add(customer);
+            }
+        }
+        return filteredCustomers;
     }
 }

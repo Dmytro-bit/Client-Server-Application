@@ -1,7 +1,7 @@
-package org.example.DAOs;
+package org.example.server.DAOs;
 
 import org.example.DTOs.Booking;
-import org.example.Exception.DaoException;
+import org.example.server.Exception.DaoException;
 import org.example.Utils.BookingStatus;
 
 import java.sql.*;
