@@ -9,6 +9,8 @@ public class RestaurantTable {
         this.capacity = capacity;
     }
 
+    public RestaurantTable(int capacity) {this.capacity = capacity;}
+
     public int getId() {
         return id;
     }
