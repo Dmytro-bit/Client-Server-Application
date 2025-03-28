@@ -25,6 +25,14 @@ public class Booking {
         this.status = status;
     }
 
+    public Booking(int customer_id, int table_id, Date bookingDate, Time startTime, Time endTime, BookingStatus status) {
+        this.customer_id = customer_id;
+        this.table_id = table_id;
+        this.bookingDate = bookingDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.status = status;
+    }
 
     public Booking(Time startTime) {
         this.startTime = startTime;

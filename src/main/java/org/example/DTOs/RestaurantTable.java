@@ -9,6 +9,8 @@ public class RestaurantTable {
         this.capacity = capacity;
     }
 
+    public RestaurantTable(int capacity) {this.capacity = capacity;}
+
     public int getId() {
         return id;
     }
@@ -23,5 +25,13 @@ public class RestaurantTable {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    @Override
+    public String toString() {
+        return "RestaurantTable{" +
+                "id=" + id +
+                ", capacity=" + capacity +
+                '}';
     }
 }

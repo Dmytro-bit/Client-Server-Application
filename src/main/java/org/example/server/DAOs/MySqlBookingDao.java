@@ -1,12 +1,12 @@
-package org.example.DAOs;
+package org.example.server.DAOs;
 
 import org.example.DTOs.Booking;
-import org.example.Exception.DaoException;
+import org.example.server.Exception.DaoException;
 import org.example.Utils.BookingStatus;
 
 import java.sql.*;
-import java.util.Date;
 import java.util.*;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Booking> {
@@ -19,7 +19,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
 
         try {
             connection = getConnection();
-            String query = "SELECT * FROM booking";
+            String query = "SELECT * FROM Booking";
             preparedStatement = connection.prepareStatement(query);
             resultSet = preparedStatement.executeQuery();
 
@@ -64,7 +64,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
 
         try {
             connection = getConnection();
-            String query = "SELECT * FROM booking WHERE id = ?";
+            String query = "SELECT * FROM Booking WHERE id = ?";
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             resultSet = preparedStatement.executeQuery();
@@ -101,21 +101,26 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
     }
 
     @Override
+    public List<Booking> getEntitiesByField(String filed, String value) throws DaoException {
+        return null;
+    }
+
+    @Override
     public void insertEntity(Booking b) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
         try {
             connection = getConnection();
-            String query = "Insert into booking values(?,?,?,?,?,?,?)";
+            String query = "INSERT INTO Booking (customer_id, table_id, booking_date, start_time, end_time, status) VALUES (?, ?, ?, ?, ?, ?)";
             preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, b.getId());
-            preparedStatement.setInt(2, b.getCustomer_id());
-            preparedStatement.setInt(3, b.getTable_id());
-            preparedStatement.setDate(4, new java.sql.Date(b.getBookingDate().getTime()));
-            preparedStatement.setTime(5, b.getStartTime());
-            preparedStatement.setTime(6, b.getEndTime());
-            preparedStatement.setString(7, b.getStringStatus());
+            preparedStatement.setInt(1, b.getCustomer_id());
+            preparedStatement.setInt(2, b.getTable_id());
+            preparedStatement.setDate(3, new java.sql.Date(b.getBookingDate().getTime()));
+            preparedStatement.setTime(4, b.getStartTime());
+            preparedStatement.setTime(5, b.getEndTime());
+            preparedStatement.setString(6, b.getStringStatus());
+
 
             preparedStatement.executeUpdate();
 
@@ -170,7 +175,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
 
         try {
             connection = getConnection();
-            String query = "DELETE FROM booking WHERE id = ?";
+            String query = "DELETE FROM Booking WHERE id = ?";
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
@@ -183,7 +188,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
                 if (connection != null) freeConnection(connection);
 
             } catch (SQLException e) {
-                throw new DaoException("updateEntity() " + e.getMessage());
+                throw new DaoException("deleteEntity() " + e.getMessage());
             }
         }
     }
@@ -213,7 +218,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
             }
         }
 
-        Booking threshold_booking = new Booking(Time.valueOf(threshold+":00"));
+        Booking threshold_booking = new Booking(Time.valueOf(threshold + ":00"));
         for (Booking booking : all_bookings) {
             if (comparator.compare(booking, threshold_booking) > 0) {
                 filtered_bookings.add(booking);

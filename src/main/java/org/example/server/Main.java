@@ -1,9 +1,11 @@
-package org.example;
+package org.example.server;
 
-import org.example.DAOs.BaseSqlInterface;
-import org.example.DAOs.MySqlBookingDao;
+import org.example.server.DAOs.BaseSqlInterface;
+import org.example.server.DAOs.MySqlBookingDao;
+import org.example.server.DAOs.MySqlTableDao;
 import org.example.DTOs.Booking;
-import org.example.Exception.DaoException;
+import org.example.DTOs.RestaurantTable;
+import org.example.server.Exception.DaoException;
 import org.example.Utils.BookingStatus;
 
 import java.sql.Date;
@@ -22,12 +24,31 @@ public class Main {
         }
     }
 
+    public static void displayAllTables(List<RestaurantTable> tableList) {
+        for (RestaurantTable table : tableList) {
+            System.out.println(table.toString());
+        }
+    }
+
     public static void displayAllBookings() throws DaoException {
         BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
         try {
             List<Booking> allBookings = baseDI.getAllEntities();
 
             for (Booking booking : allBookings) {
+                System.out.println(booking.toString());
+            }
+        } catch (DaoException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void displayAllTables() throws DaoException {
+        BaseSqlInterface<RestaurantTable> baseDI = new MySqlTableDao();
+        try {
+            List<RestaurantTable> allTables = baseDI.getAllEntities();
+
+            for (RestaurantTable booking : allTables) {
                 System.out.println(booking.toString());
             }
         } catch (DaoException e) {
@@ -66,24 +87,6 @@ public class Main {
             LocalDate today = LocalDate.now();
             Date bookingDate = Date.valueOf(today);
 
-            BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
-            int id;
-
-            while (true) {
-                System.out.println("Enter Booking ID:");
-                while (!addScanner.hasNextInt()) {
-                    System.out.println("Invalid input. Please enter a valid integer:");
-                    addScanner.next();
-                }
-                id = addScanner.nextInt();
-
-                Booking existingBooking = baseDI.getEntityById(id);
-                if (existingBooking != null) {
-                    System.out.println("A booking with ID " + id + " already exists. Please use a different ID.");
-                } else {
-                    break;
-                }
-            }
 
             System.out.println("Enter Customer ID:");
             while (!addScanner.hasNextInt()) {
@@ -139,7 +142,7 @@ public class Main {
                 return;
             }
 
-            Booking newBooking = new Booking(id, customerId, tableId, bookingDate, startTime, endTime, status);
+            Booking newBooking = new Booking(customerId, tableId, bookingDate, startTime, endTime, status);
 
             baseDI.insertEntity(newBooking);
 
@@ -290,7 +293,8 @@ public class Main {
     public static void findBookingByFilter() throws DaoException {
         MySqlBookingDao dao = new MySqlBookingDao();
 
-        Comparator<Booking> bookingComparator = (b1, b2) -> b1.getStartTime().compareTo(b2.getStartTime());
+//        Comparator<Booking> bookingComparator = (b1, b2) -> b1.getStartTime().compareTo(b2.getStartTime());
+        Comparator<Booking> bookingComparator = Comparator.comparing(Booking::getStartTime);
 
         List<Booking> filtered_bookings = dao.findEntitiesByFilter(bookingComparator);
 
@@ -311,7 +315,14 @@ public class Main {
             System.out.println("4. Update Booking");
             System.out.println("5. Delete Booking");
             System.out.println("6. Filter by comparator");
-            System.out.println("0. Exit\n");
+            System.out.println("*----TABLE----*");
+            System.out.println("7. View Tables");
+            System.out.println("8. View Table By ID");
+            System.out.println("9. Add Table");
+            System.out.println("10. Update Table");
+            System.out.println("11. Delete Table");
+            System.out.println("12. See Table with Enough Sits");
+            System.out.println("0. Exit");
 
             try {
                 System.out.println("Choose an option: ");
@@ -339,6 +350,9 @@ public class Main {
                     case "0":
                         System.out.println("Exiting the program...");
                         break;
+                    case "7":
+                        displayAllTables();
+                        break;
                     default:
                         System.out.println("Invalid option. Please try again.");
                 }
@@ -349,7 +363,10 @@ public class Main {
         } while (!option.equals("0"));
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DaoException {
         menu();
+        MySqlTableDao baseDI = new MySqlTableDao();
+
+        List<RestaurantTable> list = baseDI.getEntitiesByField("", "22:00:00");
     }
 }
