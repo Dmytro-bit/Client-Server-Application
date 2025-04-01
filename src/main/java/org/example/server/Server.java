@@ -15,7 +15,7 @@ import java.net.Socket;
 import java.util.List;
 
 public class Server {
-    final int SERVER_PORT_NUMBER = 8888;
+    final int SERVER_PORT_NUMBER = 40000;
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -40,6 +40,25 @@ public class Server {
                             case "1":
                                 List<Booking> allBookings = baseDI.getAllEntities();
                                 out.println(JsonConverter.EntitiesToJson(allBookings));
+                                break;
+                            case "2":
+                                try {
+                                    String idInput = in.readLine();
+                                    int id = Integer.parseInt(idInput);
+
+                                    Booking booking = baseDI.getEntityById(id);
+
+                                    if (booking != null) {
+                                        out.println(JsonConverter.TableEntityToJson(booking));
+                                    } else {
+                                        out.println("Booking with ID " + id + " was not found.");
+                                    }
+                                } catch (NumberFormatException e) {
+                                    out.println("Invalid ID format.");
+                                } catch (DaoException e) {
+                                    e.printStackTrace();
+                                    out.println("Error retrieving entity: " + e.getMessage());
+                                }
                                 break;
                             case "0":
                                 System.out.println("Client disconnected.");

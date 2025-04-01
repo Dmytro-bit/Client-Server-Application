@@ -14,28 +14,26 @@ import org.json.JSONObject;
 import java.util.Scanner;
 
 public class Client {
-    final int SERVER_PORT_NUMBER = 8888;
-
     public static void main(String[] args) {
         Client clientSocket = new Client();
         clientSocket.start();
     }
 
     public void start() {
-        try (Socket socket = new Socket("localhost", 8888);
+        try (Socket socket = new Socket("localhost", 40000);
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));) {
             Scanner scanner = new Scanner(System.in);
             String userRequest = "";
 
             do {
-                System.out.println("----------MENU----------");
+                System.out.println("\n----------MENU----------");
                 System.out.println("1. View Bookings");
                 System.out.println("2. View Booking By ID");
                 System.out.println("0. Exit");
 
 
-                System.out.println("Choose an option: ");
+                System.out.println("\nChoose an option: ");
                 userRequest = scanner.nextLine();
                 out.println(userRequest);
                 switch (userRequest) {
@@ -54,6 +52,27 @@ public class Client {
                                     booking.getInt("table_id"),
                                     booking.getInt("customer_id"),
                                     booking.getString("status"));
+                        }
+                        break;
+                    case "2":
+                        System.out.println("Enter Booking ID: ");
+                        String bookingId = scanner.nextLine();
+                        out.println(bookingId);
+
+                        String response = in.readLine();
+                        if (response.startsWith("{")) {
+                            JSONObject booking = new JSONObject(response);
+                            System.out.println("Booking Details:");
+                            System.out.printf("| %-2d | %-12s | %-10s | %-10s | %-8d | %-12d | %-10s |\n",
+                                    booking.getInt("id"),
+                                    booking.getString("bookingDate"),
+                                    booking.getString("startTime"),
+                                    booking.getString("endTime"),
+                                    booking.getInt("table_id"),
+                                    booking.getInt("customer_id"),
+                                    booking.getString("status"));
+                        } else {
+                            System.out.println(response);
                         }
                         break;
                     case "0":

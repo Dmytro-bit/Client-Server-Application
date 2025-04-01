@@ -143,7 +143,7 @@ public class Main {
             }
 
             Booking newBooking = new Booking(customerId, tableId, bookingDate, startTime, endTime, status);
-
+            BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
             baseDI.insertEntity(newBooking);
 
             System.out.println("Booking added successfully!");
