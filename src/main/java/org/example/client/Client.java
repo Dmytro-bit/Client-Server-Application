@@ -9,7 +9,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.util.Scanner;
 
 public class Client {
@@ -25,7 +26,7 @@ public class Client {
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));) {
             Scanner scanner = new Scanner(System.in);
-            String option = "";
+            String userRequest = "";
 
             do {
                 System.out.println("----------MENU----------");
@@ -35,22 +36,34 @@ public class Client {
 
 
                 System.out.println("Choose an option: ");
-                String userRequest = scanner.nextLine();
+                userRequest = scanner.nextLine();
                 out.println(userRequest);
-                switch (option) {
+                switch (userRequest) {
                     case "1":
                         String res = in.readLine();
+                        JSONArray bookings = new JSONArray(res);
                         System.out.println("Response:");
-                        System.out.println(res);
+                        System.out.printf("| %-2s | %-12s | %-10s | %-10s | %-8s | %-12s | %-10s |\n", "ID", "Booking Date", "Start Time", "End Time", "Table_ID", "Customer_ID", "Status");
+                        for (int i = 0; i < bookings.length(); i++) {
+                            JSONObject booking = bookings.getJSONObject(i);
+                            System.out.printf("| %-2d | %-12s | %-10s | %-10s | %-8d | %-12d | %-10s |\n",
+                                    booking.getInt("id"),
+                                    booking.getString("bookingDate"),
+                                    booking.getString("startTime"),
+                                    booking.getString("endTime"),
+                                    booking.getInt("table_id"),
+                                    booking.getInt("customer_id"),
+                                    booking.getString("status"));
+                        }
                         break;
-                    case "2":
+                    case "0":
 
                         break;
                     default:
                         System.out.println("Invalid option. Please try again.");
                 }
 
-            } while (true);
+            } while (!userRequest.equals("0"));
 
         } catch (IOException e) {
             System.out.println("Client Message: IOException: " + e);

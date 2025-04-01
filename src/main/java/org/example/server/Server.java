@@ -23,33 +23,38 @@ public class Server {
     }
 
     public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT_NUMBER);) {
-            while (true) {
+        try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT_NUMBER)) {
+            while (true) { // Always listen for new clients
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Server Message: A Client has connected.");
+
                 try (
-                        Socket clientSocket = serverSocket.accept();
-                        // connection is made.
                         PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
                 ) {
-                    System.out.println("Server Message: A Client has connected.");
                     BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
 
-                    String request = in.readLine();
-
-                    switch (request) {
-                        case "1" :
-                            List<Booking> allBookings = baseDI.getAllEntities();
-                            out.println(JsonConverter.EntitiesToJson(allBookings));
-                            break;
+                    String request;
+                    while ((request = in.readLine()) != null) { // Keep listening for requests
+                        switch (request) {
+                            case "1":
+                                List<Booking> allBookings = baseDI.getAllEntities();
+                                out.println(JsonConverter.EntitiesToJson(allBookings));
+                                break;
+                            case "0":
+                                System.out.println("Client disconnected.");
+                                clientSocket.close(); // Close when the client exits
+                                return;
+                            default:
+                                out.println("Invalid option.");
+                        }
                     }
-
                 } catch (DaoException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
         } catch (IOException e) {
             System.out.println("Server Message: IOException: " + e);
         }
-
     }
 }
