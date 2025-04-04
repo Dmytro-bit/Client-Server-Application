@@ -117,4 +117,49 @@ class MySqlBookingDaoTest {
         assertEquals(Time.valueOf("14:00:00"), booking.getEndTime());
         assertEquals(BookingStatus.CONFIRMED, booking.getStatus());
     }
+
+    @Test
+    void deleteEntity() throws SQLException {
+        int id = 101;
+
+        doNothing().when(bookingDao).deleteEntity(any(Integer.class));
+
+        bookingDao.deleteEntity(id);
+
+        Booking booking = bookingDao.getEntityById(id);
+
+        assertNull(booking);
+    }
+
+    @Test
+    void updateEntity() throws SQLException {
+        int id = 101;
+        Booking test = new Booking(id, 101, 101, Date.valueOf("2025-04-03"),
+                Time.valueOf("12:00:00"), Time.valueOf("14:00:00"), BookingStatus.CANCELLED);
+
+        doNothing().when(bookingDao).updateEntity(any(Integer.class), any(Booking.class));
+
+        bookingDao.updateEntity(id, test);
+
+        when(mockResult.next()).thenReturn(true, false);
+        when(mockResult.getInt("id")).thenReturn(id);
+        when(mockResult.getInt("customer_id")).thenReturn(101);
+        when(mockResult.getInt("table_id")).thenReturn(101);
+        when(mockResult.getDate("booking_date")).thenReturn(Date.valueOf("2025-04-03"));
+        when(mockResult.getTime("start_time")).thenReturn(Time.valueOf("12:00:00"));
+        when(mockResult.getTime("end_time")).thenReturn(Time.valueOf("14:00:00"));
+        when(mockResult.getString("status")).thenReturn("CANCELLED");
+
+        Booking updatedBooking = bookingDao.getEntityById(id);
+
+        assertNotNull(updatedBooking);
+        assertEquals(101, updatedBooking.getId());
+        assertEquals(101, updatedBooking.getCustomer_id());
+        assertEquals(101, updatedBooking.getTable_id());
+        assertEquals(Date.valueOf("2025-04-03"), updatedBooking.getBookingDate());
+        assertEquals(Time.valueOf("12:00:00"), updatedBooking.getStartTime());
+        assertEquals(Time.valueOf("14:00:00"), updatedBooking.getEndTime());
+        assertEquals(BookingStatus.CANCELLED, updatedBooking.getStatus());
+    }
+
 }
