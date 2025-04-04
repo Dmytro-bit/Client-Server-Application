@@ -64,10 +64,10 @@ class MySqlBookingDaoTest {
     }
 
     @Test
-    void getEntityByID() throws SQLException{
+    void getEntityByID() throws SQLException {
         int searchId = 1;
 
-        when(mockResult.next()).thenReturn(true);
+        when(mockResult.next()).thenReturn(true, false);
         when(mockResult.getInt("id")).thenReturn(searchId);
         when(mockResult.getInt("customer_id")).thenReturn(100);
         when(mockResult.getInt("table_id")).thenReturn(5);
@@ -82,6 +82,36 @@ class MySqlBookingDaoTest {
         assertEquals(1, booking.getId());
         assertEquals(100, booking.getCustomer_id());
         assertEquals(5, booking.getTable_id());
+        assertEquals(Date.valueOf("2025-04-03"), booking.getBookingDate());
+        assertEquals(Time.valueOf("12:00:00"), booking.getStartTime());
+        assertEquals(Time.valueOf("14:00:00"), booking.getEndTime());
+        assertEquals(BookingStatus.CONFIRMED, booking.getStatus());
+    }
+
+    @Test
+    void insertEntity() throws SQLException {
+        Booking test = new Booking(101, 101, 101, Date.valueOf("2025-04-03"),
+                Time.valueOf("12:00:00"), Time.valueOf("14:00:00"), BookingStatus.CONFIRMED);
+
+        doNothing().when(bookingDao).insertEntity(any(Booking.class));
+
+        when(mockResult.next()).thenReturn(true, false);
+        when(mockResult.getInt("id")).thenReturn(101);
+        when(mockResult.getInt("customer_id")).thenReturn(101);
+        when(mockResult.getInt("table_id")).thenReturn(101);
+        when(mockResult.getDate("booking_date")).thenReturn(Date.valueOf("2025-04-03"));
+        when(mockResult.getTime("start_time")).thenReturn(Time.valueOf("12:00:00"));
+        when(mockResult.getTime("end_time")).thenReturn(Time.valueOf("14:00:00"));
+        when(mockResult.getString("status")).thenReturn("CONFIRMED");
+
+        bookingDao.insertEntity(test);
+
+        Booking booking = bookingDao.getEntityById(101);
+
+        assertNotNull(booking);
+        assertEquals(101, booking.getId());
+        assertEquals(101, booking.getCustomer_id());
+        assertEquals(101, booking.getTable_id());
         assertEquals(Date.valueOf("2025-04-03"), booking.getBookingDate());
         assertEquals(Time.valueOf("12:00:00"), booking.getStartTime());
         assertEquals(Time.valueOf("14:00:00"), booking.getEndTime());
