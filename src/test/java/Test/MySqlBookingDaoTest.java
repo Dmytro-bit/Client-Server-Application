@@ -8,11 +8,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.ByteArrayInputStream;
 import java.sql.*;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class MySqlBookingDaoTest {
 
@@ -31,9 +35,9 @@ class MySqlBookingDaoTest {
         mockStatement = mock(PreparedStatement.class);
         mockResult = mock(ResultSet.class);
 
-        doReturn(mockConnection).when(bookingDao).getConnection();
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockStatement);
-        when(mockStatement.executeQuery()).thenReturn(mockResult);
+        lenient().doReturn(mockConnection).when(bookingDao).getConnection();
+        lenient().when(mockConnection.prepareStatement(anyString())).thenReturn(mockStatement);
+        lenient().when(mockStatement.executeQuery()).thenReturn(mockResult);
 
     }
 
@@ -162,4 +166,23 @@ class MySqlBookingDaoTest {
         assertEquals(BookingStatus.CANCELLED, updatedBooking.getStatus());
     }
 
+    @Test
+    void getListEntity() throws SQLException {
+        List<Booking> bookings = Arrays.asList(
+                new Booking(Time.valueOf("09:00:00")),
+                new Booking(Time.valueOf("11:00:00")),
+                new Booking(Time.valueOf("15:00:00"))
+        );
+
+        doReturn(bookings).when(bookingDao).getAllEntities();
+
+        Comparator<Booking> comparator = Comparator.comparing(Booking::getStartTime);
+        System.setIn(new ByteArrayInputStream("10:00\n".getBytes()));
+
+        List<Booking> result = bookingDao.findEntitiesByFilter(comparator);
+
+        assertEquals(2, result.size());
+        assertEquals(Time.valueOf("11:00:00"), result.get(0).getStartTime());
+        assertEquals(Time.valueOf("15:00:00"), result.get(1).getStartTime());
+    }
 }
