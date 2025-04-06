@@ -63,6 +63,7 @@ public class Client {
                         if (response.startsWith("{")) {
                             JSONObject booking = new JSONObject(response);
                             System.out.println("Booking Details:");
+                            System.out.printf("| %-2s | %-12s | %-10s | %-10s | %-8s | %-12s | %-10s |\n", "ID", "Booking Date", "Start Time", "End Time", "Table_ID", "Customer_ID", "Status");
                             System.out.printf("| %-2d | %-12s | %-10s | %-10s | %-8d | %-12d | %-10s |\n",
                                     booking.getInt("id"),
                                     booking.getString("bookingDate"),
