@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.client.ClientController">
+    <top>
+        <Label style="-fx-font-size: 20px; -fx-padding: 10;" text="Booking Client UI" />
+    </top>
+    <center>
+        <VBox alignment="CENTER" prefHeight="472.0" prefWidth="478.0" spacing="10">
+            <Button onAction="#handleViewBookings" text="View Bookings" />
+            <HBox alignment="CENTER" spacing="5">
+                <TextField fx:id="bookingIdField" promptText="Booking ID" />
+                <Button onAction="#handleViewById" text="View By ID" />
+            </HBox>
+         <ButtonBar prefHeight="34.0" prefWidth="478.0">
+           <buttons>
+             <Button alignment="TOP_CENTER" contentDisplay="TOP" minWidth="10.0" mnemonicParsing="false" onAction="#clearField" prefHeight="26.0" prefWidth="75.0" style="-fx-translate-x: -20;" text="Clear" />
+           </buttons>
+         </ButtonBar>
+            <TextArea fx:id="outputArea" prefHeight="300" wrapText="true" />
+         <Button mnemonicParsing="false" onAction="#closeConnection" prefHeight="26.0" prefWidth="55.0" text="Exit" />
+        </VBox>
+    </center>
+</BorderPane>
