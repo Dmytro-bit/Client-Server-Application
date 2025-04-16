@@ -1,9 +1,5 @@
 package org.example.client;
 
-import org.example.DTOs.Booking;
-import org.example.Utils.JsonConverter;
-import org.example.server.Exception.DaoException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

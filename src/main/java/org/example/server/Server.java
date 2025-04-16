@@ -24,7 +24,7 @@ public class Server {
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT_NUMBER)) {
-            while (true) { // Always listen for new clients
+            while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Server Message: A Client has connected.");
 
@@ -33,9 +33,11 @@ public class Server {
                         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
                 ) {
                     BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
+                    System.out.println("Database interface initialized.");
 
                     String request;
-                    while ((request = in.readLine()) != null) { // Keep listening for requests
+                    while ((request = in.readLine()) != null) {
+                        System.out.println("Request: " + request);
                         switch (request) {
                             case "1":
                                 List<Booking> allBookings = baseDI.getAllEntities();
@@ -47,7 +49,6 @@ public class Server {
                                     int id = Integer.parseInt(idInput);
 
                                     Booking booking = baseDI.getEntityById(id);
-
                                     if (booking != null) {
                                         out.println(JsonConverter.TableEntityToJson(booking));
                                     } else {
@@ -62,7 +63,7 @@ public class Server {
                                 break;
                             case "0":
                                 System.out.println("Client disconnected.");
-                                clientSocket.close(); // Close when the client exits
+                                clientSocket.close();
                                 return;
                             default:
                                 out.println("Invalid option.");
@@ -76,4 +77,5 @@ public class Server {
             System.out.println("Server Message: IOException: " + e);
         }
     }
+
 }
