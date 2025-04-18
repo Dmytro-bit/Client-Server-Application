@@ -1,18 +1,18 @@
 package org.example.server;
 
+import org.example.DTOs.Booking;
+import org.example.DTOs.RestaurantTable;
+import org.example.Utils.BookingStatus;
+import org.example.Utils.JsonConverter;
 import org.example.server.DAOs.BaseSqlInterface;
 import org.example.server.DAOs.MySqlBookingDao;
 import org.example.server.DAOs.MySqlTableDao;
-import org.example.DTOs.Booking;
-import org.example.DTOs.RestaurantTable;
 import org.example.server.Exception.DaoException;
-import org.example.Utils.BookingStatus;
 
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
