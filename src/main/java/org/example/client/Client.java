@@ -98,7 +98,7 @@ public class Client {
                         if (imageName.equals("*"))
                             receiveAllFiles();
                         else
-                            receiveFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/lambert_received.png");
+                            receiveFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/client/Images/received.png");
                         break;
                     case "0":
 
@@ -147,7 +147,7 @@ public class Client {
         System.out.println("Receiving " + fileCount + " image(s)");
 
         for (int i = 1; i <= fileCount; i++) {
-            String fileName = "C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/received_image_" + i + ".png";
+            String fileName = "C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/client/Images/received_image_" + i + ".png";
             FileOutputStream fileOutputStream = new FileOutputStream(fileName);
 
             long numberOfBytesRemaining = dataInputStream.readLong();

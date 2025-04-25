@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+
+<HBox fx:id="imageContainer" spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml" fx:controller="org.example.client.ImageViewerController">
+    <children>
+
+    </children>
+    <Button text="Close" onAction="#handleClose" />
+</HBox>

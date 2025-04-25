@@ -16,6 +16,7 @@
     <center>
         <VBox alignment="CENTER" prefHeight="472.0" prefWidth="478.0" spacing="10">
             <Button onAction="#handleViewBookings" text="View Bookings" />
+            <Button onAction="#handleImages" text="View Images" />
             <HBox alignment="CENTER" spacing="5">
                 <TextField fx:id="bookingIdField" promptText="Booking ID" />
                 <Button onAction="#handleViewById" text="View By ID" />

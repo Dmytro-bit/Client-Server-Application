@@ -2,12 +2,17 @@ package org.example.client;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
+import javafx. scene. image. Image;
 import java.io.*;
 import java.net.Socket;
 
@@ -115,6 +120,41 @@ public class ClientController {
 
         if (stage != null) {
             Platform.runLater(stage::close);
+        }
+    }
+
+    public void handleImages() {
+        out.println("5");
+        out.println("*");
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org.example/client/ImageViewer.fxml"));
+            Parent root = loader.load();
+
+            ImageViewerController controller = loader.getController();
+            Stage galleryStage = new Stage();
+            controller.setStage(galleryStage);
+
+            File folder = new File("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images");
+            File[] listOfFiles = folder.listFiles();
+            System.out.println(listOfFiles.length);
+
+            if (listOfFiles != null) {
+                for (File file : listOfFiles) {
+                    if (file.isFile()) {
+                        Image image = new Image(file.toURI().toString());
+                        controller.addImage(image);
+                    }
+                }
+            }
+
+            galleryStage.setTitle("Image Gallery");
+            galleryStage.setScene(new Scene(root));
+            galleryStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Platform.runLater(() -> outputArea.setText("Failed to load image gallery: " + e.getMessage()));
         }
     }
 }
