@@ -1,15 +1,15 @@
 package org.example.client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.Scanner;
 
 public class Client {
+
+    private DataInputStream dataInputStream = null;
+
     public static void main(String[] args) {
         Client clientSocket = new Client();
         clientSocket.start();
@@ -26,6 +26,7 @@ public class Client {
                 System.out.println("\n----------MENU----------");
                 System.out.println("1. View Bookings");
                 System.out.println("2. View Booking By ID");
+                System.out.println("5. View Images to Download");
                 System.out.println("0. Exit");
 
 
@@ -59,6 +60,7 @@ public class Client {
                         if (response.startsWith("{")) {
                             JSONObject booking = new JSONObject(response);
                             System.out.println("Booking Details:");
+                            System.out.printf("| %-2s | %-12s | %-10s | %-10s | %-8s | %-12s | %-10s |\n", "ID", "Booking Date", "Start Time", "End Time", "Table_ID", "Customer_ID", "Status");
                             System.out.printf("| %-2d | %-12s | %-10s | %-10s | %-8d | %-12d | %-10s |\n",
                                     booking.getInt("id"),
                                     booking.getString("bookingDate"),
@@ -71,6 +73,30 @@ public class Client {
                             System.out.println(response);
                         }
                         break;
+                    case "5":
+                        dataInputStream = new DataInputStream(socket.getInputStream());
+                        System.out.println("Choose image:");
+                        File folder = new File("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images");
+                        File[] listOfFiles = folder.listFiles();
+                        if(listOfFiles != null) {
+                            for (int i = 0; i < listOfFiles.length; i++) {
+                                if (listOfFiles[i].isFile()) {
+                                    System.out.println((i+1) + ". " + listOfFiles[i].getName());
+                                } else if (listOfFiles[i].isDirectory()) {
+                                    System.out.println("Error reading file name. Selected file is a directory." );
+                                }
+                            }
+                        }
+                        System.out.println((listOfFiles.length + 1) + ". All images");
+                        System.out.println("Choose image:");
+                        String imageName = scanner.nextLine();
+                        out.println(imageName);
+                        dataInputStream = new DataInputStream(socket.getInputStream());
+
+                        System.out.println("Server is waiting for image data to arrive...");
+
+                        receiveFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/lambert_received.png");
+                        break;
                     case "0":
 
                         break;
@@ -82,8 +108,34 @@ public class Client {
 
         } catch (IOException e) {
             System.out.println("Client Message: IOException: " + e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
+    private void receiveFile(String fileName) throws Exception
+    {
+        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
 
+        long numberOfBytesRemaining = dataInputStream.readLong();
+        System.out.println("Server: size of image file (in bytes) = " + numberOfBytesRemaining);
+
+        byte[] buffer = new byte[4*1024];
+        System.out.println("Buffer size: " + (4*1024) + " bytes");
+        int numberOfBytesRead = 0;
+
+        while (numberOfBytesRemaining > 0 &&  (numberOfBytesRead =
+                dataInputStream.read(buffer, 0,(int)Math.min(buffer.length, numberOfBytesRemaining))) != -1) {
+
+            fileOutputStream.write(buffer, 0, numberOfBytesRead);
+
+            numberOfBytesRemaining = numberOfBytesRemaining - numberOfBytesRead;
+
+            System.out.print("Bytes read: " + numberOfBytesRead);
+            System.out.println(" - Bytes remaining: " + numberOfBytesRemaining);
+        }
+        fileOutputStream.close();
+
+        System.out.println("File was Received");
+    }
 }

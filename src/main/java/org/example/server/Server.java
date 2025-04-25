@@ -6,13 +6,11 @@ import org.example.server.DAOs.BaseSqlInterface;
 import org.example.server.DAOs.MySqlBookingDao;
 import org.example.server.Exception.DaoException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.Scanner;
 
 public class Server {
     final int SERVER_PORT_NUMBER = 40000;
@@ -33,9 +31,11 @@ public class Server {
                         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
                 ) {
                     BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
+                    DataOutputStream dataOutputStream = new DataOutputStream( clientSocket.getOutputStream() );
                     System.out.println("Database interface initialized.");
 
                     String request;
+                    Scanner scanner = new Scanner(System.in);
                     while ((request = in.readLine()) != null) {
                         System.out.println("Request: " + request);
                         switch (request) {
@@ -61,6 +61,11 @@ public class Server {
                                     out.println("Error retrieving entity: " + e.getMessage());
                                 }
                                 break;
+                            case "5":
+                                String imageName = in.readLine();
+
+                                sendFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/"+imageName, dataOutputStream);
+                                break;
                             case "0":
                                 System.out.println("Client disconnected.");
                                 clientSocket.close();
@@ -71,11 +76,30 @@ public class Server {
                     }
                 } catch (DaoException e) {
                     e.printStackTrace();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
             }
         } catch (IOException e) {
             System.out.println("Server Message: IOException: " + e);
         }
+    }
+
+    private void sendFile(String fileName, DataOutputStream dataOutputStream) throws Exception
+    {
+        int numberOfBytes = 0;
+        File file = new File(fileName);
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        dataOutputStream.writeLong( file.length() );
+
+        byte[] buffer = new byte[4 * 1024];
+        while ((numberOfBytes = fileInputStream.read(buffer))!= -1) {
+
+            dataOutputStream.write(buffer, 0, numberOfBytes);
+            dataOutputStream.flush();
+        }
+        fileInputStream.close();
     }
 
 }
