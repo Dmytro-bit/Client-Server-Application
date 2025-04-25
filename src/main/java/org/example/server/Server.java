@@ -9,6 +9,7 @@ import org.example.server.Exception.DaoException;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -64,7 +65,10 @@ public class Server {
                             case "5":
                                 String imageName = in.readLine();
 
-                                sendFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/"+imageName, dataOutputStream);
+                                if(!imageName.equals("*"))
+                                    sendFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/"+imageName, dataOutputStream);
+                                else
+                                    sendAllFiles("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images", dataOutputStream);
                                 break;
                             case "0":
                                 System.out.println("Client disconnected.");
@@ -100,6 +104,23 @@ public class Server {
             dataOutputStream.flush();
         }
         fileInputStream.close();
+    }
+
+    private void sendAllFiles(String directory, DataOutputStream dataOutputStream) throws Exception {
+        File folder = new File(directory);
+        File[] listOfFiles = folder.listFiles();
+        int fileCounter = 0;
+
+        for (File file : listOfFiles) {
+            if (file.isFile()) fileCounter++;
+        }
+
+        dataOutputStream.writeInt(fileCounter);
+
+        for (File file : listOfFiles) {
+            sendFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/" + file.getName(), dataOutputStream);
+        }
+
     }
 
 }

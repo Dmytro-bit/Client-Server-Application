@@ -75,7 +75,7 @@ public class Client {
                         break;
                     case "5":
                         dataInputStream = new DataInputStream(socket.getInputStream());
-                        System.out.println("Choose image:");
+                        System.out.println("Choose image (Enter the name of the image to load; Press * to download all images):");
                         File folder = new File("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images");
                         File[] listOfFiles = folder.listFiles();
                         if(listOfFiles != null) {
@@ -87,7 +87,7 @@ public class Client {
                                 }
                             }
                         }
-                        System.out.println((listOfFiles.length + 1) + ". All images");
+                        System.out.println((listOfFiles.length + 1) + ". All images (*)");
                         System.out.println("Choose image:");
                         String imageName = scanner.nextLine();
                         out.println(imageName);
@@ -95,7 +95,10 @@ public class Client {
 
                         System.out.println("Server is waiting for image data to arrive...");
 
-                        receiveFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/lambert_received.png");
+                        if (imageName.equals("*"))
+                            receiveAllFiles();
+                        else
+                            receiveFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/lambert_received.png");
                         break;
                     case "0":
 
@@ -137,5 +140,31 @@ public class Client {
         fileOutputStream.close();
 
         System.out.println("File was Received");
+    }
+
+    private void receiveAllFiles() throws Exception {
+        int fileCount = dataInputStream.readInt();
+        System.out.println("Receiving " + fileCount + " image(s)");
+
+        for (int i = 1; i <= fileCount; i++) {
+            String fileName = "C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/received_image_" + i + ".png";
+            FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+
+            long numberOfBytesRemaining = dataInputStream.readLong();
+            System.out.println("Receiving file " + i + " - Size: " + numberOfBytesRemaining + " bytes");
+
+            byte[] buffer = new byte[4 * 1024];
+            int numberOfBytesRead;
+
+            while (numberOfBytesRemaining > 0 &&
+                    (numberOfBytesRead = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, numberOfBytesRemaining))) != -1) {
+
+                fileOutputStream.write(buffer, 0, numberOfBytesRead);
+                numberOfBytesRemaining -= numberOfBytesRead;
+            }
+
+            fileOutputStream.close();
+            System.out.println("File " + i + " received successfully.");
+        }
     }
 }
