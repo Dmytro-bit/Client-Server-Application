@@ -5,6 +5,7 @@ import org.example.Utils.JsonConverter;
 import org.example.server.DAOs.BaseSqlInterface;
 import org.example.server.DAOs.MySqlBookingDao;
 import org.example.server.Exception.DaoException;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -31,7 +32,7 @@ public class Server {
                         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
                 ) {
                     BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
-                    DataOutputStream dataOutputStream = new DataOutputStream( clientSocket.getOutputStream() );
+                    DataOutputStream dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
                     System.out.println("Database interface initialized.");
 
                     String request;
@@ -61,10 +62,44 @@ public class Server {
                                     out.println("Error retrieving entity: " + e.getMessage());
                                 }
                                 break;
+                            case "3":
+                                try {
+                                    JSONObject newBookingJson = new JSONObject(in.readLine());
+                                    Booking newBooking = new Booking();
+                                    newBooking.setInstanceFromJson(newBookingJson);
+
+                                    baseDI.insertEntity(newBooking);
+
+                                    System.out.println(newBooking);
+
+                                    out.println(JsonConverter.TableEntityToJson(newBooking));
+
+                                } catch (NumberFormatException e) {
+                                    out.println("Invalid ID format.");
+                                }
+                                break;
+                            case "4":
+                                try {
+                                    String idInput = in.readLine();
+                                    int id = Integer.parseInt(idInput);
+
+                                    int rowsAffected = baseDI.deleteEntity(id);
+                                    if (rowsAffected != 0) {
+                                        out.println("Booking with ID " + id + " was deleted.");
+                                    } else {
+                                        out.println("Booking with ID " + id + " was not found.");
+                                    }
+                                } catch (NumberFormatException e) {
+                                    out.println("Invalid ID format.");
+                                } catch (DaoException e) {
+                                    e.printStackTrace();
+                                    out.println("Error retrieving entity: " + e.getMessage());
+                                }
+                                break;
                             case "5":
                                 String imageName = in.readLine();
 
-                                sendFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/"+imageName, dataOutputStream);
+                                sendFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/" + imageName, dataOutputStream);
                                 break;
                             case "0":
                                 System.out.println("Client disconnected.");
@@ -85,16 +120,15 @@ public class Server {
         }
     }
 
-    private void sendFile(String fileName, DataOutputStream dataOutputStream) throws Exception
-    {
+    private void sendFile(String fileName, DataOutputStream dataOutputStream) throws Exception {
         int numberOfBytes = 0;
         File file = new File(fileName);
         FileInputStream fileInputStream = new FileInputStream(file);
 
-        dataOutputStream.writeLong( file.length() );
+        dataOutputStream.writeLong(file.length());
 
         byte[] buffer = new byte[4 * 1024];
-        while ((numberOfBytes = fileInputStream.read(buffer))!= -1) {
+        while ((numberOfBytes = fileInputStream.read(buffer)) != -1) {
 
             dataOutputStream.write(buffer, 0, numberOfBytes);
             dataOutputStream.flush();

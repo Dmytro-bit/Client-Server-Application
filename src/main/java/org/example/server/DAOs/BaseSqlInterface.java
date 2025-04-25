@@ -16,7 +16,7 @@ public interface BaseSqlInterface<T> {
 
     void updateEntity(int id, T t) throws DaoException;
 
-    void deleteEntity(int id) throws DaoException;
+    int deleteEntity(int id) throws DaoException;
 
     List<T> findEntitiesByFilter(Comparator<T> comparator) throws DaoException;
 }
