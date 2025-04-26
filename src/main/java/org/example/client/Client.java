@@ -14,6 +14,7 @@ import java.util.Scanner;
 public class Client {
 
     private DataInputStream dataInputStream = null;
+    private String response;
 
     public static void main(String[] args) {
         Client clientSocket = new Client();
@@ -64,7 +65,6 @@ public class Client {
                         System.out.println("Enter Booking ID: ");
                         String bookingId = scanner.nextLine();
                         out.println(bookingId);
-
                         response = in.readLine();
                         if (response.startsWith("{")) {
                             JSONObject booking = new JSONObject(response);
@@ -105,7 +105,6 @@ public class Client {
 
                         System.out.println("Response:");
                         System.out.println(responce_booking);
-
                         break;
                     case "4":
                         System.out.println("Enter Booking ID: ");
@@ -117,7 +116,7 @@ public class Client {
                     case "5":
                         dataInputStream = new DataInputStream(socket.getInputStream());
                         System.out.println("Choose image:");
-                        File folder = new File("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images"); // FIXME set current working dir via lib !!!
+                        File folder = new File("src/main/java/org/example/Images"); // FIXME set current working dir via lib !!!
                         File[] listOfFiles = folder.listFiles();
                         if (listOfFiles != null) {
                             for (int i = 0; i < listOfFiles.length; i++) {
@@ -136,11 +135,10 @@ public class Client {
 
                         System.out.println("Server is waiting for image data to arrive...");
 
-                        receiveFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/lambert_received.png"); // FIXME set current working dir via lib !!!
                         if (imageName.equals("*"))
                             receiveAllFiles();
                         else
-                            receiveFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/client/Images/received.png");
+                            receiveFile("src/main/java/org/example/Images/received.png");
                         break;
                     case "0":
                         break;
@@ -187,12 +185,11 @@ public class Client {
         System.out.println("Receiving " + fileCount + " image(s)");
 
         for (int i = 1; i <= fileCount; i++) {
-            String fileName = "C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/client/Images/received_image_" + i + ".png";
+            String fileName = "src/main/java/org/example/client/Images/received_image_" + i + ".png";
             FileOutputStream fileOutputStream = new FileOutputStream(fileName);
 
             long numberOfBytesRemaining = dataInputStream.readLong();
             System.out.println("Receiving file " + i + " - Size: " + numberOfBytesRemaining + " bytes");
-
             byte[] buffer = new byte[4 * 1024];
             int numberOfBytesRead;
 

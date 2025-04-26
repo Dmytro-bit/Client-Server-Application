@@ -16,18 +16,23 @@
     <center>
         <VBox alignment="CENTER" prefHeight="472.0" prefWidth="478.0" spacing="10">
             <Button onAction="#handleViewBookings" text="View Bookings" />
+            <Button onAction="#handleAddBookings" text="Add Bookings" />
             <Button onAction="#handleImages" text="View Images" />
             <HBox alignment="CENTER" spacing="5">
                 <TextField fx:id="bookingIdField" promptText="Booking ID" />
                 <Button onAction="#handleViewById" text="View By ID" />
             </HBox>
-         <ButtonBar prefHeight="34.0" prefWidth="478.0">
-           <buttons>
-             <Button alignment="TOP_CENTER" contentDisplay="TOP" minWidth="10.0" mnemonicParsing="false" onAction="#clearField" prefHeight="26.0" prefWidth="75.0" style="-fx-translate-x: -20;" text="Clear" />
-           </buttons>
-         </ButtonBar>
+            <HBox alignment="CENTER" spacing="5">
+                <TextField fx:id="bookingDeleteIdField" promptText="Booking ID" />
+                <Button onAction="#handleDeleteById" text="Delete By ID" />
+            </HBox>
+            <ButtonBar prefHeight="34.0" prefWidth="478.0">
+                <buttons>
+                    <Button alignment="TOP_CENTER" contentDisplay="TOP" minWidth="10.0" mnemonicParsing="false" onAction="#clearField" prefHeight="26.0" prefWidth="75.0" style="-fx-translate-x: -20;" text="Clear" />
+                </buttons>
+            </ButtonBar>
             <TextArea fx:id="outputArea" prefHeight="300" wrapText="true" />
-         <Button mnemonicParsing="false" onAction="#closeConnection" prefHeight="26.0" prefWidth="55.0" text="Exit" />
+            <Button mnemonicParsing="false" onAction="#closeConnection" prefHeight="26.0" prefWidth="55.0" text="Exit" />
         </VBox>
     </center>
 </BorderPane>

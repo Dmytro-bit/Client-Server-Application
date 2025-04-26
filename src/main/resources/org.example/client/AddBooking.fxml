@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.client.AddBookingController"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <center>
+        <VBox alignment="CENTER" prefHeight="472.0" prefWidth="478.0" spacing="10">
+            <HBox alignment="CENTER" spacing="5">
+                <TextField fx:id="customerIdField" promptText="Customer ID" />
+                <TextField fx:id="tableIdField" promptText="Table ID" />
+                <DatePicker fx:id="bookingDateField" />
+            </HBox>
+
+            <HBox alignment="CENTER" spacing="5">
+                <TextField fx:id="startTimeField" promptText="Start Time (HH:mm)" />
+                <TextField fx:id="endTimeField" promptText="End Time (HH:mm)" />
+            </HBox>
+
+            <Button mnemonicParsing="false" onAction="#AddBooking" prefHeight="26.0" prefWidth="55.0" text="Save" />
+        </VBox>
+    </center>
+    <bottom>
+        <Button mnemonicParsing="false" onAction="#closeWindow" prefHeight="26.0" prefWidth="55.0" text="Exit" />
+    </bottom>
+
+</BorderPane>

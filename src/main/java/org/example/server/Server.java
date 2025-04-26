@@ -83,7 +83,6 @@ public class Server {
                                 try {
                                     String idInput = in.readLine();
                                     int id = Integer.parseInt(idInput);
-
                                     int rowsAffected = baseDI.deleteEntity(id);
                                     if (rowsAffected != 0) {
                                         out.println("Booking with ID " + id + " was deleted.");
@@ -100,11 +99,10 @@ public class Server {
                             case "5":
                                 String imageName = in.readLine();
 
-                                sendFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/" + imageName, dataOutputStream);
                                 if(!imageName.equals("*"))
-                                    sendFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/"+imageName, dataOutputStream);
+                                    sendFile("src/main/java/org/example/Images/"+imageName, dataOutputStream);
                                 else
-                                    sendAllFiles("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images", dataOutputStream);
+                                    sendAllFiles("src/main/java/org/example/Images", dataOutputStream);
                                 break;
                             case "0":
                                 System.out.println("Client disconnected.");
@@ -153,7 +151,7 @@ public class Server {
         dataOutputStream.writeInt(fileCounter);
 
         for (File file : listOfFiles) {
-            sendFile("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images/" + file.getName(), dataOutputStream);
+            sendFile("src/main/java/org/example/Images/" + file.getName(), dataOutputStream);
         }
 
     }

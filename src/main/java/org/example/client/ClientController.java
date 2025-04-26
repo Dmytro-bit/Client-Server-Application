@@ -1,6 +1,7 @@
 package org.example.client;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -19,6 +20,8 @@ import java.net.Socket;
 public class ClientController {
     @FXML
     private TextField bookingIdField;
+    @FXML
+    private TextField bookingDeleteIdField;
 
     @FXML
     private TextArea outputArea;
@@ -123,6 +126,24 @@ public class ClientController {
         }
     }
 
+    public void handleDeleteById() {
+        String id = bookingDeleteIdField.getText().trim();
+        if (id.isEmpty()) return;
+
+        new Thread(() -> {
+            try {
+                out.println("4");
+                Thread.sleep(100);
+                out.println(id);
+
+                String deleteResponse = in.readLine();
+                Platform.runLater(() -> outputArea.setText(deleteResponse));
+            } catch (InterruptedException | IOException e) {
+                Platform.runLater(() -> outputArea.setText("Error: " + e.getMessage()));
+            }
+        }).start();
+    }
+
     public void handleImages() {
         out.println("5");
         out.println("*");
@@ -156,5 +177,24 @@ public class ClientController {
             e.printStackTrace();
             Platform.runLater(() -> outputArea.setText("Failed to load image gallery: " + e.getMessage()));
         }
+    }
+
+    public void handleAddBookings() {
+        out.println("3");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org.example/client/AddBooking.fxml"));
+            Parent root = loader.load();
+
+            AddBookingController controller = loader.getController();
+            Stage addBookingStage = new Stage();
+            controller.setStage(addBookingStage);
+            controller.setConnection(socket, out, in);
+
+            addBookingStage.setScene(new Scene(root));
+            addBookingStage.show();
+        } catch (Exception e) {
+            Platform.runLater(() -> outputArea.setText("Failed to open Add Booking window: " + e.getMessage()));
+        }
+
     }
 }
