@@ -156,7 +156,7 @@ public class ClientController {
             Stage galleryStage = new Stage();
             controller.setStage(galleryStage);
 
-            File folder = new File("C:/Users/dimab/Documents/Client-Server-Application/src/main/java/org/example/Images");
+            File folder = new File("src/main/java/org/example/Images");
             File[] listOfFiles = folder.listFiles();
             System.out.println(listOfFiles.length);
 
