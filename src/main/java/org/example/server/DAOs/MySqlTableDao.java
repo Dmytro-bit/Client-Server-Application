@@ -1,6 +1,5 @@
 package org.example.server.DAOs;
 
-import org.example.DTOs.Booking;
 import org.example.DTOs.RestaurantTable;
 import org.example.server.Exception.DaoException;
 
@@ -145,7 +144,7 @@ public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<Restaura
     }
 
     @Override
-    public void updateEntity(int id,  RestaurantTable restaurantTable) throws DaoException {
+    public void updateEntity(int id, RestaurantTable restaurantTable) throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
@@ -171,9 +170,10 @@ public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<Restaura
     }
 
     @Override
-    public void deleteEntity(int id) throws DaoException {
+    public int deleteEntity(int id) throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        int rowsAffected = 0;
 
         try {
             connection = getConnection();
@@ -181,6 +181,7 @@ public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<Restaura
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
+            rowsAffected = preparedStatement.getUpdateCount();
 
         } catch (SQLException e) {
             throw new DaoException(e.getMessage());
@@ -193,7 +194,7 @@ public class MySqlTableDao extends MySqlDao implements BaseSqlInterface<Restaura
                 throw new DaoException("deleteEntity() " + e.getMessage());
             }
         }
-
+        return rowsAffected;
     }
 
     @Override

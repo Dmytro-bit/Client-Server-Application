@@ -1,8 +1,8 @@
 package org.example.server.DAOs;
 
 import org.example.DTOs.Booking;
-import org.example.server.Exception.DaoException;
 import org.example.Utils.BookingStatus;
+import org.example.server.Exception.DaoException;
 
 import java.sql.*;
 import java.util.*;
@@ -109,11 +109,12 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
     public void insertEntity(Booking b) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        Integer result_id = null;
 
         try {
             connection = getConnection();
             String query = "INSERT INTO Booking (customer_id, table_id, booking_date, start_time, end_time, status) VALUES (?, ?, ?, ?, ?, ?)";
-            preparedStatement = connection.prepareStatement(query);
+            preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setInt(1, b.getCustomer_id());
             preparedStatement.setInt(2, b.getTable_id());
             preparedStatement.setDate(3, new java.sql.Date(b.getBookingDate().getTime()));
@@ -122,8 +123,15 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
             preparedStatement.setString(6, b.getStringStatus());
 
 
-            preparedStatement.executeUpdate();
+            int rowsInserted = preparedStatement.executeUpdate();
 
+            if (rowsInserted > 0) {
+                ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    int generatedId = generatedKeys.getInt(1);
+                    b.setId(generatedId);
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -169,9 +177,10 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
     }
 
     @Override
-    public void deleteEntity(int id) throws DaoException {
+    public int deleteEntity(int id) throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        int rowsAffected = 0;
 
         try {
             connection = getConnection();
@@ -179,6 +188,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
+            rowsAffected = preparedStatement.getUpdateCount();
 
         } catch (SQLException e) {
             throw new DaoException(e.getMessage());
@@ -191,6 +201,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
                 throw new DaoException("deleteEntity() " + e.getMessage());
             }
         }
+        return rowsAffected;
     }
 
     @Override
@@ -200,7 +211,7 @@ public class MySqlBookingDao extends MySqlDao implements BaseSqlInterface<Bookin
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter a time in HH:mm format (e.g., 10:00 or 14:30) to filter bookings. " +
-                       "\nAll bookings starting after the specified time will be displayed:");
+                "\nAll bookings starting after the specified time will be displayed:");
 
         String threshold = "";
         String regex = "^([01]\\d|2[0-3]):[0-5]\\d";

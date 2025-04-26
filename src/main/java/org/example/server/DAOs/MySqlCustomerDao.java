@@ -172,9 +172,10 @@ public class MySqlCustomerDao extends MySqlDao implements BaseSqlInterface<Custo
     }
 
     @Override
-    public void deleteEntity(int id) throws DaoException {
+    public int deleteEntity(int id) throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        int rowsAffected = 0;
 
         try {
             connection = getConnection();
@@ -182,6 +183,7 @@ public class MySqlCustomerDao extends MySqlDao implements BaseSqlInterface<Custo
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
+            rowsAffected = preparedStatement.getUpdateCount();
         } catch (SQLException e) {
             throw new DaoException(e.getMessage());
         } finally {
@@ -192,6 +194,7 @@ public class MySqlCustomerDao extends MySqlDao implements BaseSqlInterface<Custo
                 throw new DaoException("deleteEntity() " + e.getMessage());
             }
         }
+        return rowsAffected;
     }
 
     @Override

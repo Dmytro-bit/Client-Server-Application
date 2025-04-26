@@ -1,6 +1,7 @@
 package org.example.DTOs;
 
 import org.example.Utils.BookingStatus;
+import org.json.JSONObject;
 
 import java.sql.Time;
 import java.util.Date;
@@ -36,6 +37,9 @@ public class Booking {
 
     public Booking(Time startTime) {
         this.startTime = startTime;
+    }
+
+    public Booking() {
     }
 
     public int getId() {
@@ -97,6 +101,16 @@ public class Booking {
 
     public void setStatus(BookingStatus status) {
         this.status = status;
+    }
+
+    public void setInstanceFromJson(JSONObject bookingJson) {
+        this.id = bookingJson.getInt("id");
+        this.customer_id = bookingJson.getInt("customer_id");
+        this.table_id = bookingJson.getInt("table_id");
+        this.bookingDate = java.sql.Date.valueOf(bookingJson.getString("bookingDate"));
+        this.startTime = java.sql.Time.valueOf(bookingJson.getString("startTime"));
+        this.endTime = java.sql.Time.valueOf(bookingJson.getString("endTime"));
+        this.status = BookingStatus.PENDING;
     }
 
     @Override
