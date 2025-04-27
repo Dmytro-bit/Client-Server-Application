@@ -71,8 +71,8 @@ public class Server implements Runnable {
 
                                 out.println(JsonConverter.TableEntityToJson(newBooking));
 
-                            } catch (NumberFormatException e) {
-                                out.println("Invalid ID format.");
+                            } catch (Exception e) {
+                                out.println("Something went wrong: " + e.getMessage());
                             }
                             break;
                         case "4":
