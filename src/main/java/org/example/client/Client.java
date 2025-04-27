@@ -116,7 +116,7 @@ public class Client {
                     case "5":
                         dataInputStream = new DataInputStream(socket.getInputStream());
                         System.out.println("Choose image:");
-                        File folder = new File("src/main/java/org/example/Images"); // FIXME set current working dir via lib !!!
+                        File folder = new File("src/main/java/org/example/Images");
                         File[] listOfFiles = folder.listFiles();
                         if (listOfFiles != null) {
                             for (int i = 0; i < listOfFiles.length; i++) {

@@ -8,118 +8,112 @@ import org.example.server.Exception.DaoException;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Server {
-    final int SERVER_PORT_NUMBER = 40000;
+public class Server implements Runnable {
 
-    public static void main(String[] args) {
-        Server server = new Server();
-        server.start();
+
+    private final Socket clientSocket;
+
+    public Server(Socket clientSocket) {
+        this.clientSocket = clientSocket;
     }
 
-    public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT_NUMBER)) {
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("Server Message: A Client has connected.");
+    @Override
+    public void run() {
+        while (true) {
+            try (
+                    PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                    BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
+            ) {
+                BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
+                DataOutputStream dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
+                System.out.println("Database interface initialized.");
 
-                try (
-                        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
-                ) {
-                    BaseSqlInterface<Booking> baseDI = new MySqlBookingDao();
-                    DataOutputStream dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
-                    System.out.println("Database interface initialized.");
+                String request;
+                Scanner scanner = new Scanner(System.in);
+                while ((request = in.readLine()) != null) {
+                    System.out.println("Request: " + request);
+                    switch (request) {
+                        case "1":
+                            List<Booking> allBookings = baseDI.getAllEntities();
+                            out.println(JsonConverter.EntitiesToJson(allBookings));
+                            break;
+                        case "2":
+                            try {
+                                String idInput = in.readLine();
+                                int id = Integer.parseInt(idInput);
 
-                    String request;
-                    Scanner scanner = new Scanner(System.in);
-                    while ((request = in.readLine()) != null) {
-                        System.out.println("Request: " + request);
-                        switch (request) {
-                            case "1":
-                                List<Booking> allBookings = baseDI.getAllEntities();
-                                out.println(JsonConverter.EntitiesToJson(allBookings));
-                                break;
-                            case "2":
-                                try {
-                                    String idInput = in.readLine();
-                                    int id = Integer.parseInt(idInput);
-
-                                    Booking booking = baseDI.getEntityById(id);
-                                    if (booking != null) {
-                                        out.println(JsonConverter.TableEntityToJson(booking));
-                                    } else {
-                                        out.println("Booking with ID " + id + " was not found.");
-                                    }
-                                } catch (NumberFormatException e) {
-                                    out.println("Invalid ID format.");
-                                } catch (DaoException e) {
-                                    e.printStackTrace();
-                                    out.println("Error retrieving entity: " + e.getMessage());
+                                Booking booking = baseDI.getEntityById(id);
+                                if (booking != null) {
+                                    out.println(JsonConverter.TableEntityToJson(booking));
+                                } else {
+                                    out.println("Booking with ID " + id + " was not found.");
                                 }
-                                break;
-                            case "3":
-                                try {
-                                    JSONObject newBookingJson = new JSONObject(in.readLine());
-                                    Booking newBooking = new Booking();
-                                    newBooking.setInstanceFromJson(newBookingJson);
+                            } catch (NumberFormatException e) {
+                                out.println("Invalid ID format.");
+                            } catch (DaoException e) {
+                                e.printStackTrace();
+                                out.println("Error retrieving entity: " + e.getMessage());
+                            }
+                            break;
+                        case "3":
+                            try {
+                                JSONObject newBookingJson = new JSONObject(in.readLine());
+                                Booking newBooking = new Booking();
+                                newBooking.setInstanceFromJson(newBookingJson);
 
-                                    baseDI.insertEntity(newBooking);
+                                baseDI.insertEntity(newBooking);
 
-                                    System.out.println(newBooking);
+                                System.out.println(newBooking);
 
-                                    out.println(JsonConverter.TableEntityToJson(newBooking));
+                                out.println(JsonConverter.TableEntityToJson(newBooking));
 
-                                } catch (NumberFormatException e) {
-                                    out.println("Invalid ID format.");
+                            } catch (NumberFormatException e) {
+                                out.println("Invalid ID format.");
+                            }
+                            break;
+                        case "4":
+                            try {
+                                String idInput = in.readLine();
+                                int id = Integer.parseInt(idInput);
+                                int rowsAffected = baseDI.deleteEntity(id);
+                                if (rowsAffected != 0) {
+                                    out.println("Booking with ID " + id + " was deleted.");
+                                } else {
+                                    out.println("Booking with ID " + id + " was not found.");
                                 }
-                                break;
-                            case "4":
-                                try {
-                                    String idInput = in.readLine();
-                                    int id = Integer.parseInt(idInput);
-                                    int rowsAffected = baseDI.deleteEntity(id);
-                                    if (rowsAffected != 0) {
-                                        out.println("Booking with ID " + id + " was deleted.");
-                                    } else {
-                                        out.println("Booking with ID " + id + " was not found.");
-                                    }
-                                } catch (NumberFormatException e) {
-                                    out.println("Invalid ID format.");
-                                } catch (DaoException e) {
-                                    e.printStackTrace();
-                                    out.println("Error retrieving entity: " + e.getMessage());
-                                }
-                                break;
-                            case "5":
-                                String imageName = in.readLine();
+                            } catch (NumberFormatException e) {
+                                out.println("Invalid ID format.");
+                            } catch (DaoException e) {
+                                e.printStackTrace();
+                                out.println("Error retrieving entity: " + e.getMessage());
+                            }
+                            break;
+                        case "5":
+                            String imageName = in.readLine();
 
-                                if(!imageName.equals("*"))
-                                    sendFile("src/main/java/org/example/Images/"+imageName, dataOutputStream);
-                                else
-                                    sendAllFiles("src/main/java/org/example/Images", dataOutputStream);
-                                break;
-                            case "0":
-                                System.out.println("Client disconnected.");
-                                clientSocket.close();
-                                return;
-                            default:
-                                out.println("Invalid option.");
-                        }
+                            if (!imageName.equals("*"))
+                                sendFile("src/main/java/org/example/Images/" + imageName, dataOutputStream);
+                            else
+                                sendAllFiles("src/main/java/org/example/Images", dataOutputStream);
+                            break;
+                        case "0":
+                            System.out.println("Client disconnected.");
+                            clientSocket.close();
+                            return;
+                        default:
+                            out.println("Invalid option.");
                     }
-                } catch (DaoException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    out.flush();
                 }
+            } catch (DaoException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        } catch (IOException e) {
-            System.out.println("Server Message: IOException: " + e);
         }
     }
 
