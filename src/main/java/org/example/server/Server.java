@@ -33,7 +33,6 @@ public class Server implements Runnable {
                 System.out.println("Database interface initialized.");
 
                 String request;
-                Scanner scanner = new Scanner(System.in);
                 while ((request = in.readLine()) != null) {
                     System.out.println("Request: " + request);
                     switch (request) {
@@ -105,7 +104,7 @@ public class Server implements Runnable {
                             clientSocket.close();
                             return;
                         default:
-                            out.println("Invalid option.");
+                            break;
                     }
                     out.flush();
                 }

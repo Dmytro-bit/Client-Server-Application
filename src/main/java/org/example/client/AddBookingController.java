@@ -56,8 +56,8 @@ public class AddBookingController {
         booking.setCustomer_id(Integer.parseInt(customerIdField.getText()));
         booking.setTable_id(Integer.parseInt(tableIdField.getText()));
         booking.setBookingDate(Date.valueOf(bookingDateField.getValue()));
-        booking.setStartTime(Time.valueOf(startTimeField.getText()));
-        booking.setEndTime(Time.valueOf(endTimeField.getText()));
+        booking.setStartTime(Time.valueOf(startTimeField.getText()+":00"));
+        booking.setEndTime(Time.valueOf(endTimeField.getText()+":00"));
 
         out.println(JsonConverter.TableEntityToJson(booking));
 

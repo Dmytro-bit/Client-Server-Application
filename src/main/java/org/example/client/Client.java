@@ -83,17 +83,19 @@ public class Client {
                         }
                         break;
                     case "3":
+                        try {
+
                         Booking booking = new Booking();
                         System.out.println("Please enter customer ID: ");
                         booking.setCustomer_id(Integer.parseInt(scanner.nextLine()));
                         System.out.println("Enter Table ID: ");
                         booking.setTable_id(Integer.parseInt(scanner.nextLine()));
-                        System.out.println("Enter Booking Date: ");
+                        System.out.println("Enter Booking Date: (YYYY-MM-DD)");
                         booking.setBookingDate(Date.valueOf(scanner.nextLine()));
-                        System.out.println("Enter Start Time: ");
-                        booking.setStartTime(Time.valueOf(scanner.nextLine()));
-                        System.out.println("Enter End Time: ");
-                        booking.setEndTime(Time.valueOf(scanner.nextLine()));
+                        System.out.println("Enter Start Time: (HH:mm)");
+                        booking.setStartTime(Time.valueOf(scanner.nextLine()+":00"));
+                        System.out.println("Enter End Time: (HH:mm)");
+                        booking.setEndTime(Time.valueOf(scanner.nextLine()+":00"));
 
                         out.println(JsonConverter.TableEntityToJson(booking));
 
@@ -105,6 +107,10 @@ public class Client {
 
                         System.out.println("Response:");
                         System.out.println(responce_booking);
+
+                        } catch (Exception e) {
+                            System.out.println("Something went wrong");
+                        }
                         break;
                     case "4":
                         System.out.println("Enter Booking ID: ");
@@ -115,7 +121,7 @@ public class Client {
                         break;
                     case "5":
                         dataInputStream = new DataInputStream(socket.getInputStream());
-                        System.out.println("Choose image:");
+                        System.out.println("Choose image: (Type the name of the image including .png)");
                         File folder = new File("src/main/java/org/example/Images");
                         File[] listOfFiles = folder.listFiles();
                         if (listOfFiles != null) {
@@ -127,7 +133,7 @@ public class Client {
                                 }
                             }
                         }
-                        System.out.println((listOfFiles.length + 1) + ". All images");
+                        System.out.println((listOfFiles.length + 1) + ". All images (*)");
                         System.out.println("Choose image:");
                         String imageName = scanner.nextLine();
                         out.println(imageName);
@@ -138,14 +144,15 @@ public class Client {
                         if (imageName.equals("*"))
                             receiveAllFiles();
                         else
-                            receiveFile("src/main/java/org/example/Images/received.png");
+                            receiveFile("src/main/java/org/example/client/mages/received.png");
                         break;
                     case "0":
                         break;
                     default:
                         System.out.println("Invalid option. Please try again.");
                 }
-
+                    out.println("\n");
+                    out.flush();
             } while (!userRequest.equals("0"));
 
         } catch (IOException e) {

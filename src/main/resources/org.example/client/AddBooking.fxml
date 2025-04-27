@@ -11,14 +11,29 @@
     <center>
         <VBox alignment="CENTER" prefHeight="472.0" prefWidth="478.0" spacing="10">
             <HBox alignment="CENTER" spacing="5">
-                <TextField fx:id="customerIdField" promptText="Customer ID" />
-                <TextField fx:id="tableIdField" promptText="Table ID" />
-                <DatePicker fx:id="bookingDateField" />
+                <VBox spacing="2">
+                    <Label text="Customer ID" />
+                    <TextField fx:id="customerIdField" promptText="Customer ID" />
+                </VBox>
+                <VBox spacing="2">
+                    <Label text="Table ID" />
+                    <TextField fx:id="tableIdField" promptText="Table ID" />
+                </VBox>
+                <VBox spacing="2">
+                    <Label text="Booking Date" />
+                    <DatePicker fx:id="bookingDateField" />
+                </VBox>
             </HBox>
 
             <HBox alignment="CENTER" spacing="5">
-                <TextField fx:id="startTimeField" promptText="Start Time (HH:mm)" />
-                <TextField fx:id="endTimeField" promptText="End Time (HH:mm)" />
+                <VBox spacing="2">
+                    <Label text="Start Time" />
+                    <TextField fx:id="startTimeField" promptText="Start Time (HH:mm)" />
+                </VBox>
+                <VBox spacing="2">
+                    <Label text="End Time" />
+                    <TextField fx:id="endTimeField" promptText="End Time (HH:mm)" />
+                </VBox>
             </HBox>
 
             <Button mnemonicParsing="false" onAction="#AddBooking" prefHeight="26.0" prefWidth="55.0" text="Save" />
